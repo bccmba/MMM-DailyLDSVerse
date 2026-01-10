@@ -5,7 +5,8 @@
   "main": "MMM-DailyLDSVerse.js",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "test:api": "node tests/api-research.test.js"
+    "test:api": "node tests/api-research.test.js",
+    "convert": "node convert-lds-data.js"
   },
   "author": "",
   "repository": {

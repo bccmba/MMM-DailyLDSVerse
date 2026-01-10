@@ -1,8 +1,13 @@
 /**
- * Verse List Generation Script
+ * Verse List Generation Script (API-based)
  * 
- * This script queries the Open Scripture API to generate verse list files
- * for each volume (Bible, Book of Mormon, Doctrine and Covenants, Pearl of Great Price).
+ * NOTE: This script was designed for API-based generation, but the Open Scripture API
+ * does not exist as a public API. 
+ * 
+ * RECOMMENDED: Use convert-lds-data.js instead to convert LDS Documentation Project
+ * data files to verse list JSON files.
+ * 
+ * This script is kept for reference in case an API becomes available in the future.
  * 
  * Usage: node generate-verse-lists.js
  */

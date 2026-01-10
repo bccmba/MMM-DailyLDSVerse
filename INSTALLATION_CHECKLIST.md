@@ -27,23 +27,17 @@ Use this checklist to ensure proper installation of MMM-DailyLDSVerse.
   cd MMM-DailyLDSVerse
   ```
 
-### 2. API Configuration
+### 2. Download LDS Scripture Data
 
-- [ ] Run API research script
+- [ ] Visit LDS Documentation Project: https://scriptures.nephi.org
+- [ ] Download scripture database files (JSON format recommended)
+- [ ] Save to project directory (e.g., `lds-scriptures.json`)
+
+### 3. Convert Data to Verse Lists
+
+- [ ] Run conversion script
   ```bash
-  node tests/api-research.test.js
-  ```
-
-- [ ] Verify API_RESEARCH.md is updated with:
-  - [ ] Base URL
-  - [ ] Endpoint pattern
-  - [ ] Response format
-
-### 3. Verse List Generation
-
-- [ ] Generate verse lists
-  ```bash
-  node generate-verse-lists.js
+  node convert-lds-data.js lds-scriptures.json verses/
   ```
 
 - [ ] Verify verse list files created:

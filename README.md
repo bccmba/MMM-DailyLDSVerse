@@ -34,54 +34,91 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
 
 ## Generating Verse Lists
 
-Before using the module, you need to generate the verse list files. These files contain all verse references for each volume and are used by the module to select daily verses.
+Before using the module, you need to generate the verse list files. These files contain all verse references (and optionally verse text) for each volume and are used by the module to select daily verses.
 
-### Prerequisites
+### Method 1: Using LDS Documentation Project (Recommended)
 
-1. **Node.js**: Ensure Node.js is installed (v14 or higher)
-2. **API Research**: Run the API research script first to discover API endpoints:
-   ```bash
-   node tests/api-research.test.js
-   ```
-   This will update `API_RESEARCH.md` with endpoint information.
+The **LDS Documentation Project** (https://scriptures.nephi.org) provides downloadable database files with complete LDS scripture data.
 
-### Generating Verse Lists
+#### Step 1: Download Data
 
-Run the generation script:
+1. Visit https://scriptures.nephi.org
+2. Download the scripture database files (JSON format recommended)
+3. Save the file to your project directory (e.g., `lds-scriptures.json`)
+
+#### Step 2: Convert Data
+
+Run the conversion script:
 
 ```bash
-node generate-verse-lists.js
+node convert-lds-data.js lds-scriptures.json verses/
 ```
 
 This script will:
-- Query the Open Scripture API for all verses in each volume
+- Parse the LDS Documentation Project data file
+- Extract verse references and text
+- Organize verses by volume
 - Generate JSON files in the `verses/` directory:
   - `bible.json`
   - `book-of-mormon.json`
   - `doctrine-and-covenants.json`
   - `pearl-of-great-price.json`
 
-### Script Options
+#### Output Format
 
-The script includes rate limiting to avoid API throttling:
-- 500ms delay between individual verse requests
-- 2 second delay between volumes
+The script generates JSON files with verse data:
 
-### Updating Verse Lists
+```json
+[
+  {
+    "reference": "1 Nephi 3:7",
+    "text": "And it came to pass that I, Nephi, said unto my father..."
+  },
+  {
+    "reference": "1 Nephi 3:8",
+    "text": "And it came to pass that when my father had heard these words..."
+  }
+]
+```
 
-To update verse lists (e.g., if new verses are added), simply run the script again:
+**Note**: If verse text is not available in the source data, the `text` field will be empty and only the reference will be displayed.
+
+### Method 2: Using API (If Available)
+
+If you have access to a working scripture API, you can use the original generation script:
 
 ```bash
 node generate-verse-lists.js
 ```
 
-The script will overwrite existing files with fresh data from the API.
+**Note**: The Open Scripture API mentioned in the spec does not exist as a public API. See `API_RESEARCH.md` for details.
+
+### Method 3: Structure-Based Generation (Placeholder)
+
+For testing purposes, you can generate placeholder verse lists:
+
+```bash
+node convert-lds-data.js --structure verses/
+```
+
+**Note**: This generates references only (no verse text) and is intended for testing.
+
+### Updating Verse Lists
+
+To update verse lists, simply run the conversion script again with fresh data:
+
+```bash
+node convert-lds-data.js lds-scriptures.json verses/
+```
+
+The script will overwrite existing files with fresh data.
 
 ### Troubleshooting Verse List Generation
 
-- **API errors**: Check your internet connection and verify the API is accessible
-- **Empty files**: Ensure the API endpoints are correctly configured in `API_RESEARCH.md`
-- **Rate limiting**: If you encounter rate limiting errors, increase delays in `generate-verse-lists.js`
+- **File not found**: Ensure the input data file exists and path is correct
+- **Empty files**: Check that the input file contains verse data in expected format
+- **Format errors**: Verify the input file is valid JSON or CSV
+- **Missing volumes**: Some volumes may not be found if book names don't match - check volume mappings in `convert-lds-data.js`
 
 ## Configuration
 
@@ -153,7 +190,7 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 1. **Check Magic Mirror logs**: Look for errors in the console or log files
 2. **Verify module registration**: Ensure the module name matches exactly: `MMM-DailyLDSVerse`
 3. **Check verse list files**: Ensure verse list JSON files exist in the `verses/` directory
-4. **Verify API configuration**: Check that `API_RESEARCH.md` contains valid API endpoint information
+4. **Verify verse list format**: Check that JSON files are valid arrays (of strings or objects)
 
 ### Verse Not Updating
 
@@ -162,12 +199,12 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 3. **Check logs**: Look for update scheduling messages in Magic Mirror logs
 4. **Manual refresh**: Restart Magic Mirror to force an immediate update
 
-### API Errors
+### Verse Text Not Displaying
 
-1. **Network connectivity**: Ensure your Magic Mirror has internet access
-2. **API endpoint**: Verify the API endpoint in `API_RESEARCH.md` is correct
-3. **Rate limiting**: If you see rate limit errors, the module will retry automatically (3 attempts)
-4. **Check logs**: Look for API error messages in the node_helper logs
+1. **Check verse list format**: Verify JSON files contain verse objects with `text` field
+2. **Local files only**: If verse lists only have references (no text), only references will display
+3. **API fallback**: If API is configured, module will attempt to fetch text (but API may not be available)
+4. **Check logs**: Look for messages about verse text availability
 
 ### Empty Verse Lists
 
@@ -182,7 +219,7 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 - **Solution**: Check that node_helper is running and can access the API
 
 **Issue**: Module shows "Unable to load scripture verse"
-- **Solution**: Check API connectivity and verify API endpoints are correct
+- **Solution**: Check that verse list files exist and contain valid data. Verify JSON format is correct.
 
 **Issue**: Verse doesn't change at midnight
 - **Solution**: Check system timezone and ensure Magic Mirror is running at midnight
@@ -204,7 +241,7 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 1. **Verse Selection**: The module uses the day of year (1-366) to select which verse to display
 2. **Volume Rotation**: Cycles through the four volumes daily (Day 1 = Bible, Day 2 = Book of Mormon, etc.)
 3. **Verse Variety**: Uses a formula to ensure variety - same volume shows different verses on different days
-4. **API Integration**: Fetches verse text from the Open Scripture API
+4. **Local Data**: Reads verse data from local JSON files (generated from LDS Documentation Project)
 5. **Automatic Updates**: Updates at midnight (default) or at your configured interval
 
 ## Development
@@ -231,7 +268,8 @@ npm test
 MMM-DailyLDSVerse/
 ├── MMM-DailyLDSVerse.js      # Main module (frontend)
 ├── node_helper.js             # Node helper (backend)
-├── generate-verse-lists.js    # Verse list generation script
+├── generate-verse-lists.js    # Verse list generation script (API-based, deprecated)
+├── convert-lds-data.js        # LDS Documentation Project data converter (recommended)
 ├── package.json               # Module metadata
 ├── README.md                  # This file
 ├── config.example.js          # Configuration examples
@@ -265,12 +303,19 @@ SOFTWARE.
 
 ## Credits
 
-- **Open Scripture API**: Uses the Open Scripture API for verse data
-  - Website: https://openscriptureapi.org
-  - Provides access to LDS scriptures including Bible, Book of Mormon, Doctrine and Covenants, and Pearl of Great Price
+- **LDS Documentation Project**: Uses data from the LDS Documentation Project
+  - Website: https://scriptures.nephi.org
+  - Provides downloadable database files with complete LDS scripture data
+  - Formats: SQL, JSON, CSV, XML
 - **Magic Mirror**: Built for the Magic Mirror² platform
   - Website: https://magicmirror.builders
 - **Inspiration**: Inspired by MMM-DailyBibleVerse module
+
+## Data Source
+
+This module uses local verse list files generated from the **LDS Documentation Project** (https://scriptures.nephi.org). The module does not require an active API connection to function - it reads from local JSON files.
+
+**Note**: The Open Scripture API mentioned in the original specification does not exist as a public API. The module has been updated to use local data files instead.
 
 ## Contributing
 

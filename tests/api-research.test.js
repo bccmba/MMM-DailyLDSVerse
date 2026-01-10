@@ -20,11 +20,18 @@ const TEST_VERSES = [
 ];
 
 // Possible API base URLs to test
+// Note: Open Scripture API may not exist as a public API
+// Alternative: Use LDS Documentation Project data or BYU Scriptures
 const API_BASE_URLS = [
-  'https://api.openscriptureapi.org',
-  'https://openscriptureapi.org',
-  'https://scriptures.byu.edu'
+  'https://scriptures.byu.edu',
+  'https://www.churchofjesuschrist.org',
+  'https://lds.org',
+  'https://api.lds.org'
 ];
+
+// Alternative: LDS Documentation Project (scriptures.nephi.org)
+// Provides downloadable database files (SQL, JSON, CSV)
+const LDS_DOC_PROJECT = 'https://scriptures.nephi.org';
 
 /**
  * Make HTTP request (promise-based)
@@ -178,8 +185,16 @@ async function main() {
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   } else {
-    console.log('\n✗ No working endpoint found. Manual API research required.');
-    console.log('Please check: https://openscriptureapi.org for documentation');
+  console.log('\n✗ No working endpoint found. Manual API research required.');
+  console.log('\nAlternative Options:');
+  console.log('1. LDS Documentation Project: https://scriptures.nephi.org');
+  console.log('   - Provides downloadable database files (SQL, JSON, CSV)');
+  console.log('   - Can be used to build local verse lists');
+  console.log('2. BYU Scriptures: https://scriptures.byu.edu');
+  console.log('   - May have API endpoints (needs verification)');
+  console.log('3. Church Website: https://www.churchofjesuschrist.org');
+  console.log('   - May have scripture API (needs verification)');
+  console.log('\nRecommendation: Use LDS Documentation Project for local data files');
   }
   
   // Output findings

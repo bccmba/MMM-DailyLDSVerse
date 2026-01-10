@@ -73,6 +73,9 @@ module.exports = NodeHelper.create({
   /**
    * Load verse lists from JSON files
    * Loads all four volume verse lists from the verses/ directory
+   * Supports two formats:
+   * 1. Array of strings: ["1 Nephi 3:7", "1 Nephi 3:8", ...]
+   * 2. Array of objects: [{reference: "1 Nephi 3:7", text: "..."}, ...]
    * Handles missing files gracefully (logs warning, continues with empty array)
    * @function loadVerseLists
    */
@@ -91,8 +94,24 @@ module.exports = NodeHelper.create({
       try {
         if (fs.existsSync(filePath)) {
           const data = fs.readFileSync(filePath, "utf8");
-          this.verseLists[volume.key] = JSON.parse(data);
-          console.log(`Loaded ${this.verseLists[volume.key].length} verses from ${volume.file}`);
+          const parsed = JSON.parse(data);
+          
+          // Handle both formats: array of strings or array of objects
+          if (Array.isArray(parsed)) {
+            // Check if it's array of objects or array of strings
+            if (parsed.length > 0 && typeof parsed[0] === 'object' && parsed[0].reference) {
+              // Array of objects with reference and text
+              this.verseLists[volume.key] = parsed;
+              console.log(`Loaded ${parsed.length} verses (with text) from ${volume.file}`);
+            } else {
+              // Array of strings (reference only)
+              this.verseLists[volume.key] = parsed;
+              console.log(`Loaded ${parsed.length} verse references from ${volume.file}`);
+            }
+          } else {
+            console.warn(`Invalid format in ${volume.file}: expected array`);
+            this.verseLists[volume.key] = [];
+          }
         } else {
           console.warn(`Verse list file not found: ${filePath}`);
         }
@@ -152,7 +171,7 @@ module.exports = NodeHelper.create({
    * Combines volume selection and verse index calculation to get the verse reference
    * @function getVerseForDay
    * @param {number} dayOfYear - Day of year (1-366)
-   * @returns {string} Verse reference (e.g., "1 Nephi 3:7")
+   * @returns {string|Object} Verse reference string or verse object with reference and text
    * @throws {Error} If no verses are available for the selected volume
    */
   getVerseForDay: function(dayOfYear) {
@@ -164,7 +183,44 @@ module.exports = NodeHelper.create({
     }
 
     const verseIndex = this.getVerseIndexForDay(dayOfYear, volumeList);
-    return volumeList[verseIndex];
+    const verse = volumeList[verseIndex];
+    
+    // Return verse (string or object)
+    return verse;
+  },
+  
+  /**
+   * Get verse text from verse data
+   * Handles both string format (reference only) and object format (reference + text)
+   * @function getVerseText
+   * @param {string|Object} verse - Verse reference string or verse object
+   * @returns {string} Verse text, or empty string if not available
+   */
+  getVerseText: function(verse) {
+    if (typeof verse === 'string') {
+      // Reference only, no text available
+      return '';
+    } else if (verse && typeof verse === 'object') {
+      // Object with reference and text
+      return verse.text || '';
+    }
+    return '';
+  },
+  
+  /**
+   * Get verse reference from verse data
+   * Handles both string format and object format
+   * @function getVerseReference
+   * @param {string|Object} verse - Verse reference string or verse object
+   * @returns {string} Verse reference
+   */
+  getVerseReference: function(verse) {
+    if (typeof verse === 'string') {
+      return verse;
+    } else if (verse && typeof verse === 'object') {
+      return verse.reference || '';
+    }
+    return '';
   },
 
   /**
@@ -377,7 +433,8 @@ module.exports = NodeHelper.create({
   /**
    * Handle GET_VERSE request
    * Main handler for verse requests from the frontend module
-   * Calculates current day of year, selects verse, fetches from API, and sends result
+   * Calculates current day of year, selects verse from local files, and sends result
+   * If verse text is not in local file, attempts to fetch from API (if configured)
    * Handles errors gracefully and sends error notification to frontend
    * @function handleGetVerse
    * @async
@@ -386,20 +443,33 @@ module.exports = NodeHelper.create({
     try {
       const today = new Date();
       const dayOfYear = this.getDayOfYear(today);
-      const verseReference = this.getVerseForDay(dayOfYear);
+      const verse = this.getVerseForDay(dayOfYear);
+      
+      // Get reference and text from verse data
+      const verseReference = this.getVerseReference(verse);
+      let verseText = this.getVerseText(verse);
 
-      console.log(`Day ${dayOfYear}: Fetching verse: ${verseReference}`);
+      console.log(`Day ${dayOfYear}: Selected verse: ${verseReference}`);
 
-      // Fetch verse from API
-      const verseData = await this.fetchWithRetry(verseReference);
+      // If verse text is not available locally, try to fetch from API (if configured)
+      if (!verseText && this.apiBaseUrl) {
+        try {
+          console.log(`Verse text not in local file, attempting API fetch...`);
+          const verseData = await this.fetchWithRetry(verseReference);
+          verseText = verseData.text;
+        } catch (apiError) {
+          console.warn(`API fetch failed, using reference only: ${apiError.message}`);
+          // Continue with reference only if API fails
+        }
+      }
 
       // Send result to frontend
       this.sendSocketNotification("VERSE_RESULT", {
-        text: verseData.text,
+        text: verseText || verseReference, // Use text if available, otherwise show reference
         reference: verseReference
       });
     } catch (error) {
-      console.error("Error fetching verse:", error);
+      console.error("Error getting verse:", error);
       this.sendSocketNotification("VERSE_ERROR", {
         message: error.message
       });
