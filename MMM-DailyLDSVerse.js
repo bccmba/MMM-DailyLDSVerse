@@ -11,6 +11,11 @@ Module.register("MMM-DailyLDSVerse", {
     updateInterval: 86400000, // 24 hours in milliseconds
   },
 
+  // Load CSS stylesheet
+  getStyles: function() {
+    return ["MMM-DailyLDSVerse.css"];
+  },
+
   // Module state
   verseText: null,
   verseReference: null,
@@ -110,8 +115,17 @@ Module.register("MMM-DailyLDSVerse", {
    */
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VERSE_RESULT") {
-      this.verseText = payload.text;
-      this.verseReference = payload.reference;
+      // Validate payload exists and has required properties
+      if (!payload) {
+        Log.error("VERSE_RESULT notification received without payload");
+        this.isLoading = false;
+        this.hasError = true;
+        this.updateDom();
+        return;
+      }
+      
+      this.verseText = payload.text || "";
+      this.verseReference = payload.reference || "Unknown";
       this.isLoading = false;
       this.hasError = false;
       this.lastUpdateDate = new Date();
@@ -120,7 +134,8 @@ Module.register("MMM-DailyLDSVerse", {
     } else if (notification === "VERSE_ERROR") {
       this.isLoading = false;
       this.hasError = true;
-      Log.error(`Error loading verse: ${payload.message || "Unknown error"}`);
+      const errorMessage = payload?.message || "Unknown error";
+      Log.error(`Error loading verse: ${errorMessage}`);
       this.updateDom();
     }
   },
@@ -140,12 +155,12 @@ Module.register("MMM-DailyLDSVerse", {
     if (this.isLoading) {
       const loading = document.createElement("div");
       loading.className = "loading";
-      loading.innerHTML = "Loading verse...";
+      loading.textContent = "Loading verse...";
       wrapper.appendChild(loading);
     } else if (this.hasError) {
       const error = document.createElement("div");
       error.className = "error";
-      error.innerHTML = "Unable to load scripture verse";
+      error.textContent = "Unable to load scripture verse";
       wrapper.appendChild(error);
     } else if (this.verseText && this.verseReference) {
       const verseDiv = document.createElement("div");
@@ -163,7 +178,7 @@ Module.register("MMM-DailyLDSVerse", {
       // Fallback: show loading if no data
       const loading = document.createElement("div");
       loading.className = "loading";
-      loading.innerHTML = "Loading verse...";
+      loading.textContent = "Loading verse...";
       wrapper.appendChild(loading);
     }
 

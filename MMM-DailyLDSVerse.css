@@ -1,0 +1,98 @@
+/**
+ * Styles for MMM-DailyLDSVerse module
+ * Ensures proper width constraints and alignment for all positions
+ */
+
+.MMM-DailyLDSVerse {
+  width: auto;
+  max-width: 100%;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* Right-aligned positions */
+.region.top_right .MMM-DailyLDSVerse,
+.region.bottom_right .MMM-DailyLDSVerse {
+  text-align: right;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Center-aligned positions */
+.region.top_center .MMM-DailyLDSVerse,
+.region.middle_center .MMM-DailyLDSVerse,
+.region.bottom_center .MMM-DailyLDSVerse {
+  text-align: center;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Left-aligned positions */
+.region.top_left .MMM-DailyLDSVerse,
+.region.bottom_left .MMM-DailyLDSVerse {
+  text-align: left;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Verse text styling */
+.MMM-DailyLDSVerse .verse-text {
+  font-size: 1em;
+  margin-bottom: 0.5em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Verse reference styling */
+.MMM-DailyLDSVerse .verse-reference {
+  font-size: 0.9em;
+  font-style: italic;
+  opacity: 0.8;
+  margin-top: 0.3em;
+}
+
+/* Loading state */
+.MMM-DailyLDSVerse .loading {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+/* Error state */
+.MMM-DailyLDSVerse .error {
+  font-size: 0.9em;
+  color: #ff6b6b;
+  opacity: 0.8;
+}
+
+/* Ensure module doesn't break layout */
+.MMM-DailyLDSVerse {
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* For right-aligned regions, ensure content aligns right */
+.region.top_right .MMM-DailyLDSVerse .verse-text,
+.region.top_right .MMM-DailyLDSVerse .verse-reference,
+.region.bottom_right .MMM-DailyLDSVerse .verse-text,
+.region.bottom_right .MMM-DailyLDSVerse .verse-reference {
+  text-align: right;
+}
+
+/* For center-aligned regions */
+.region.top_center .MMM-DailyLDSVerse .verse-text,
+.region.top_center .MMM-DailyLDSVerse .verse-reference,
+.region.middle_center .MMM-DailyLDSVerse .verse-text,
+.region.middle_center .MMM-DailyLDSVerse .verse-reference,
+.region.bottom_center .MMM-DailyLDSVerse .verse-text,
+.region.bottom_center .MMM-DailyLDSVerse .verse-reference {
+  text-align: center;
+}
+
+/* For left-aligned regions */
+.region.top_left .MMM-DailyLDSVerse .verse-text,
+.region.top_left .MMM-DailyLDSVerse .verse-reference,
+.region.bottom_left .MMM-DailyLDSVerse .verse-text,
+.region.bottom_left .MMM-DailyLDSVerse .verse-reference {
+  text-align: left;
+}
+

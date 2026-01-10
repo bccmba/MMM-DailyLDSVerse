@@ -179,7 +179,25 @@ module.exports = NodeHelper.create({
     const volumeList = this.verseLists[volume];
     
     if (!volumeList || volumeList.length === 0) {
-      throw new Error(`No verses available for volume: ${volume}`);
+      const volumeNames = {
+        bible: "Bible",
+        bookOfMormon: "Book of Mormon",
+        doctrineAndCovenants: "Doctrine and Covenants",
+        pearlOfGreatPrice: "Pearl of Great Price"
+      };
+      const volumeName = volumeNames[volume] || volume;
+      const fileName = {
+        bible: "bible.json",
+        bookOfMormon: "book-of-mormon.json",
+        doctrineAndCovenants: "doctrine-and-covenants.json",
+        pearlOfGreatPrice: "pearl-of-great-price.json"
+      }[volume] || "unknown.json";
+      
+      throw new Error(
+        `No verses available for ${volumeName}. ` +
+        `Please generate verse lists using: node convert-lds-data.js <input-file> verses/ ` +
+        `(Missing or empty: verses/${fileName})`
+      );
     }
 
     const verseIndex = this.getVerseIndexForDay(dayOfYear, volumeList);
