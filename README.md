@@ -11,7 +11,7 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
 
 2. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/MMM-DailyLDSVerse.git
+   git clone https://github.com/bccmba/MMM-DailyLDSVerse.git
    ```
 
 3. Navigate to the module directory:
