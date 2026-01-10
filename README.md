@@ -11,7 +11,7 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
 
 2. Clone this repository:
    ```bash
-   git clone https://github.com/bccmba/MMM-DailyLDSVerse.git
+   git clone https://github.com/yourusername/MMM-DailyLDSVerse.git
    ```
 
 3. Navigate to the module directory:
@@ -19,7 +19,7 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
    cd MMM-DailyLDSVerse
    ```
 
-4. Generate verse lists (see below)
+4. Verse lists are pre-generated and included! (No conversion needed)
 
 5. Add the module to your `config/config.js` file:
    ```javascript
@@ -32,26 +32,37 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
    }
    ```
 
-## Generating Verse Lists
+## Verse Lists
 
-Before using the module, you need to generate the verse list files. These files contain all verse references (and optionally verse text) for each volume and are used by the module to select daily verses.
+**Good News**: Verse list files are **pre-generated and included** in this repository! You don't need to generate them - they're ready to use in the `verses/` directory.
 
-### Method 1: Using LDS Documentation Project (Recommended)
+The module will work immediately after installation.
+
+### Regenerating Verse Lists (Optional)
+
+If you want to regenerate verse lists from the latest LDS Documentation Project data (for example, if new scriptures are added), you can use the conversion script:
+
+### Method 1: Using LDS Documentation Project
 
 The **LDS Documentation Project** (https://scriptures.nephi.org) provides downloadable database files with complete LDS scripture data.
 
 #### Step 1: Download Data
 
 1. Visit https://scriptures.nephi.org
-2. Download the scripture database files (JSON format recommended)
-3. Save the file to your project directory (e.g., `lds-scriptures.json`)
+2. Click "Download" to get the ZIP file
+3. Extract the ZIP file
+4. Locate the JSON file: `json/lds-scriptures-json.txt`
 
 #### Step 2: Convert Data
 
-Run the conversion script:
-
+**Option A: Use the setup script** (easiest):
 ```bash
-node convert-lds-data.js lds-scriptures.json verses/
+./setup-verse-lists.sh ~/Downloads/lds-scriptures-2020.12.08/json/lds-scriptures-json.txt
+```
+
+**Option B: Run conversion directly**:
+```bash
+node convert-lds-data.js <path-to-lds-scriptures-json.txt> verses/
 ```
 
 This script will:

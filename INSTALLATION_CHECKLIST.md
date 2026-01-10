@@ -27,26 +27,27 @@ Use this checklist to ensure proper installation of MMM-DailyLDSVerse.
   cd MMM-DailyLDSVerse
   ```
 
-### 2. Download LDS Scripture Data
+### 2. Verify Verse Lists (Pre-Generated)
 
-- [ ] Visit LDS Documentation Project: https://scriptures.nephi.org
-- [ ] Download scripture database files (JSON format recommended)
-- [ ] Save to project directory (e.g., `lds-scriptures.json`)
+**Good News**: Verse list files are **pre-generated and included** in the repository!
 
-### 3. Convert Data to Verse Lists
+- [ ] Verify verse list files exist:
+  - [ ] `verses/bible.json` ✓ (included)
+  - [ ] `verses/book-of-mormon.json` ✓ (included)
+  - [ ] `verses/doctrine-and-covenants.json` ✓ (included)
+  - [ ] `verses/pearl-of-great-price.json` ✓ (included)
 
-- [ ] Run conversion script
+**No conversion needed** - the files are ready to use!
+
+### 2b. Regenerate Verse Lists (Optional - Only if Needed)
+
+If you want to regenerate from latest data (usually not needed):
+
+- [ ] Download latest data from https://scriptures.nephi.org
+- [ ] Run conversion script:
   ```bash
-  node convert-lds-data.js lds-scriptures.json verses/
+  node convert-lds-data.js <path-to-lds-scriptures-json.txt> verses/
   ```
-
-- [ ] Verify verse list files created:
-  - [ ] `verses/bible.json`
-  - [ ] `verses/book-of-mormon.json`
-  - [ ] `verses/doctrine-and-covenants.json`
-  - [ ] `verses/pearl-of-great-price.json`
-
-- [ ] Verify files contain verse references (not empty)
 
 ### 4. Magic Mirror Configuration
 

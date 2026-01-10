@@ -92,9 +92,24 @@ function parseVerseReference(book, chapter, verse) {
 }
 
 /**
- * Determine volume from book name
+ * Determine volume from book name or volume title
  */
-function getVolumeFromBook(bookName) {
+function getVolumeFromBook(bookName, volumeTitle) {
+  // First try volume_title if available (LDS Documentation Project format)
+  if (volumeTitle) {
+    const normalizedVolume = volumeTitle.toLowerCase();
+    if (normalizedVolume.includes('old testament') || normalizedVolume.includes('new testament') || normalizedVolume === 'bible') {
+      return 'bible';
+    } else if (normalizedVolume.includes('book of mormon')) {
+      return 'bookOfMormon';
+    } else if (normalizedVolume.includes('doctrine and covenants') || normalizedVolume.includes('d&c')) {
+      return 'doctrineAndCovenants';
+    } else if (normalizedVolume.includes('pearl of great price')) {
+      return 'pearlOfGreatPrice';
+    }
+  }
+  
+  // Fall back to book name matching
   const normalized = bookName.trim();
   
   for (const [volumeKey, volume] of Object.entries(VOLUME_MAPPINGS)) {
@@ -174,9 +189,28 @@ function parseCSVFile(filePath) {
  */
 function convertVerse(verseData) {
   // Handle different input formats
-  let book, chapter, verse, text;
+  let book, chapter, verse, text, volume;
   
-  if (verseData.book && verseData.chapter && verseData.verse) {
+  // LDS Documentation Project format (lds-scriptures-json.txt)
+  if (verseData.book_title && verseData.chapter_number && verseData.verse_number) {
+    book = verseData.book_title;
+    chapter = verseData.chapter_number;
+    verse = verseData.verse_number;
+    text = verseData.scripture_text || '';
+    volume = verseData.volume_title || '';
+    
+    // Use verse_title if available for reference
+    if (verseData.verse_title) {
+      // verse_title is like "Genesis 1:1" or "1 Nephi 3:7"
+      return {
+        reference: verseData.verse_title,
+        text: text,
+        volume: volume
+      };
+    }
+  }
+  // Standard format
+  else if (verseData.book && verseData.chapter && verseData.verse) {
     book = verseData.book;
     chapter = verseData.chapter;
     verse = verseData.verse;
@@ -209,7 +243,8 @@ function convertVerse(verseData) {
   
   return {
     reference: reference,
-    text: text || '' // Empty text if not available
+    text: text || '', // Empty text if not available
+    volume: volume || ''
   };
 }
 
@@ -261,6 +296,13 @@ function processInputFile(inputFile, outputDir) {
   
   let processed = 0;
   let skipped = 0;
+  const volumeStats = {
+    bible: 0,
+    bookOfMormon: 0,
+    doctrineAndCovenants: 0,
+    pearlOfGreatPrice: 0,
+    unknown: 0
+  };
   
   for (const verseData of verses) {
     const converted = convertVerse(verseData);
@@ -270,15 +312,34 @@ function processInputFile(inputFile, outputDir) {
       continue;
     }
     
-    const volume = getVolumeFromBook(converted.reference.split(' ')[0]);
+    // Try to get volume from converted data first, then from book name
+    let volume = converted.volume ? getVolumeFromBook('', converted.volume) : null;
+    if (!volume) {
+      // Extract book name from reference (first part before space)
+      const bookName = converted.reference.split(' ')[0];
+      volume = getVolumeFromBook(bookName, '');
+    }
     
     if (volume && volumeVerses[volume]) {
       volumeVerses[volume].push(converted);
       processed++;
+      volumeStats[volume]++;
     } else {
       skipped++;
+      volumeStats.unknown++;
+      if (skipped <= 10) { // Log first few skipped for debugging
+        console.warn(`  Skipped verse: ${converted.reference} (volume_title: ${verseData.volume_title || 'N/A'}, volume: ${converted.volume || 'unknown'})`);
+      }
     }
   }
+  
+  console.log('\nVolume Statistics:');
+  console.log(`  Bible: ${volumeStats.bible}`);
+  console.log(`  Book of Mormon: ${volumeStats.bookOfMormon}`);
+  console.log(`  Doctrine and Covenants: ${volumeStats.doctrineAndCovenants}`);
+  console.log(`  Pearl of Great Price: ${volumeStats.pearlOfGreatPrice}`);
+  console.log(`  Unknown: ${volumeStats.unknown}`);
+  console.log('');
   
   console.log(`Processed: ${processed} verses`);
   console.log(`Skipped: ${skipped} verses`);
