@@ -1,0 +1,26 @@
+{
+  "name": "mmm-dailyldsverse",
+  "version": "1.0.0",
+  "description": "Magic Mirror module for daily LDS scripture verses from Bible, Book of Mormon, Doctrine and Covenants, and Pearl of Great Price",
+  "main": "MMM-DailyLDSVerse.js",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:api": "node tests/api-research.test.js"
+  },
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/MMM-DailyLDSVerse.git"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "keywords": [
+    "MagicMirror",
+    "MagicMirror2",
+    "module",
+    "LDS",
+    "scripture",
+    "verse"
+  ]
+}
+
