@@ -81,8 +81,7 @@ MIT License
 
 ### Known Issues
 
-- API endpoint configuration required (see API_RESEARCH.md)
-- Verse list generation requires API research first
+None at this time.
 
 ### Future Enhancements
 

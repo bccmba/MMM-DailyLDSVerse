@@ -94,9 +94,7 @@ If any step fails:
 
 1. **Check Magic Mirror logs** for error messages
 2. **Verify verse list files exist** and are not empty
-3. **Check API configuration** in API_RESEARCH.md
-4. **Verify internet connection** for API calls
-5. **Check module name** matches exactly: `MMM-DailyLDSVerse`
+3. **Check module name** matches exactly: `MMM-DailyLDSVerse`
 
 ## Post-Installation
 

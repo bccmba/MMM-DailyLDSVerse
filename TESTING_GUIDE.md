@@ -284,9 +284,7 @@ Notes:
 - Check Magic Mirror logs
 
 ### API Errors
-- Verify internet connection
-- Check API configuration
-- Review API_RESEARCH.md
+- Not applicable - module uses local data files
 
 ### File Errors
 - Verify verse list files exist
