@@ -11,13 +11,24 @@ const path = require('path');
 // Mock NodeHelper for testing
 const mockNodeHelper = {
   verseLists: {
-    bible: ['Genesis 1:1', 'Genesis 1:2', 'John 3:16'],
-    bookOfMormon: ['1 Nephi 1:1', '1 Nephi 3:7', '2 Nephi 2:25'],
-    doctrineAndCovenants: ['D&C 1:1', 'D&C 121:7'],
-    pearlOfGreatPrice: ['Moses 1:1', 'Abraham 3:22']
-  },
-  apiBaseUrl: 'https://api.openscriptureapi.org',
-  apiEndpointPattern: null
+    bible: [
+      { reference: 'Genesis 1:1', text: 'In the beginning...' },
+      { reference: 'John 3:16', text: 'For God so loved...' }
+    ],
+    bookOfMormon: [
+      { reference: '1 Nephi 1:1', text: 'I, Nephi...' },
+      { reference: '1 Nephi 3:7', text: 'And it came to pass...' },
+      { reference: '2 Nephi 2:25', text: 'Adam fell that men might be...' }
+    ],
+    doctrineAndCovenants: [
+      { reference: 'D&C 1:1', text: 'Hearken...' },
+      { reference: 'D&C 121:7', text: 'My son, peace be unto...' }
+    ],
+    pearlOfGreatPrice: [
+      { reference: 'Moses 1:1', text: 'The words of God...' },
+      { reference: 'Abraham 3:22', text: 'Now the Lord had shown...' }
+    ]
+  }
 };
 
 /**
@@ -134,8 +145,9 @@ test('getVerseForDay - Should return verse from correct volume', () => {
   const verse = volumeList[verseIndex];
   
   assert.ok(verse, 'Should return a verse');
-  assert.ok(typeof verse === 'string', 'Verse should be a string');
-  assert.ok(verse.includes(':'), 'Verse should contain chapter:verse format');
+  assert.ok(typeof verse === 'object', 'Verse should be an object');
+  assert.ok(verse.reference, 'Verse should have reference');
+  assert.ok(verse.reference.includes(':'), 'Reference should contain chapter:verse format');
 });
 
 test('getVerseForDay - Should throw error for empty volume list', () => {
@@ -196,94 +208,64 @@ test('parseVerseReference - Should handle verse range', () => {
 });
 
 /**
- * Test buildAPIUrl function logic
+ * Test getVerseText function (handles both string and object formats)
  */
-test('buildAPIUrl - Should build URL with default pattern', () => {
-  const verseReference = '1 Nephi 3:7';
-  const match = verseReference.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
-  const book = match[1].trim();
-  const chapter = parseInt(match[2], 10);
-  const verse = parseInt(match[3], 10);
+test('getVerseText - Should extract text from object format', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
   
-  const baseUrl = 'https://api.openscriptureapi.org';
-  const url = `${baseUrl}/verses/${encodeURIComponent(book)}/${chapter}/${verse}`;
-  
-  assert.strictEqual(url, 'https://api.openscriptureapi.org/verses/1%20Nephi/3/7');
-});
-
-test('buildAPIUrl - Should build URL with custom pattern', () => {
-  const verseReference = 'John 3:16';
-  const match = verseReference.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
-  const book = match[1].trim();
-  const chapter = parseInt(match[2], 10);
-  const verse = parseInt(match[3], 10);
-  
-  const baseUrl = 'https://api.openscriptureapi.org';
-  const pattern = '{book}/{chapter}/{verse}';
-  const url = `${baseUrl}/${pattern}`
-    .replace('{book}', encodeURIComponent(book))
-    .replace('{chapter}', chapter)
-    .replace('{verse}', verse);
-  
-  assert.strictEqual(url, 'https://api.openscriptureapi.org/John/3/16');
-});
-
-/**
- * Test parseAPIResponse function
- */
-test('parseAPIResponse - Should parse simple format', () => {
-  const apiResponse = { text: 'And it came to pass...', reference: '1 Nephi 3:7' };
-  const verseReference = '1 Nephi 3:7';
-  
-  let text = apiResponse.text || null;
-  let reference = verseReference;
-  
-  if (apiResponse.reference) {
-    reference = apiResponse.reference;
+  let text = '';
+  if (typeof verse === 'string') {
+    text = '';
+  } else if (verse && typeof verse === 'object') {
+    text = verse.text || '';
   }
   
   assert.strictEqual(text, 'And it came to pass...');
+});
+
+test('getVerseText - Should return empty string for string format', () => {
+  const verse = '1 Nephi 3:7';
+  
+  let text = '';
+  if (typeof verse === 'string') {
+    text = '';
+  } else if (verse && typeof verse === 'object') {
+    text = verse.text || '';
+  }
+  
+  assert.strictEqual(text, '');
+});
+
+test('getVerseReference - Should extract reference from object format', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
+  
+  let reference = '';
+  if (typeof verse === 'string') {
+    reference = verse;
+  } else if (verse && typeof verse === 'object') {
+    reference = verse.reference || '';
+  }
+  
   assert.strictEqual(reference, '1 Nephi 3:7');
 });
 
-test('parseAPIResponse - Should parse nested format', () => {
-  const apiResponse = {
-    verse: {
-      text: 'For God so loved the world...',
-      reference: 'John 3:16'
-    }
-  };
-  const verseReference = 'John 3:16';
+test('getVerseReference - Should return string directly', () => {
+  const verse = '1 Nephi 3:7';
   
-  let text = null;
-  if (apiResponse.verse && apiResponse.verse.text) {
-    text = apiResponse.verse.text;
+  let reference = '';
+  if (typeof verse === 'string') {
+    reference = verse;
+  } else if (verse && typeof verse === 'object') {
+    reference = verse.reference || '';
   }
   
-  let reference = verseReference;
-  if (apiResponse.verse && apiResponse.verse.reference) {
-    reference = apiResponse.verse.reference;
-  }
-  
-  assert.strictEqual(text, 'For God so loved the world...');
-  assert.strictEqual(reference, 'John 3:16');
-});
-
-test('parseAPIResponse - Should handle data wrapper format', () => {
-  const apiResponse = {
-    data: {
-      text: 'I, Nephi, having been born...',
-      reference: '1 Nephi 1:1'
-    }
-  };
-  const verseReference = '1 Nephi 1:1';
-  
-  let text = null;
-  if (apiResponse.data && apiResponse.data.text) {
-    text = apiResponse.data.text;
-  }
-  
-  assert.strictEqual(text, 'I, Nephi, having been born...');
+  assert.strictEqual(reference, '1 Nephi 3:7');
 });
 
 /**
@@ -319,69 +301,29 @@ test('loadVerseLists - Should handle missing files gracefully', () => {
 });
 
 /**
- * Test retry logic
+ * Test verse data format handling
  */
-test('fetchWithRetry - Should retry on failure', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  const delayMs = 100; // Short delay for testing
+test('Verse data - Should handle object format with text', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
   
-  async function mockFetch() {
-    attemptCount++;
-    if (attemptCount < maxRetries) {
-      throw new Error('Simulated failure');
-    }
-    return { text: 'Success', reference: '1 Nephi 3:7' };
-  }
+  const reference = typeof verse === 'string' ? verse : (verse.reference || '');
+  const text = typeof verse === 'string' ? '' : (verse.text || '');
   
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const result = await fetchFn();
-        return result;
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  const result = await fetchWithRetry(mockFetch, maxRetries, delayMs);
-  
-  assert.strictEqual(attemptCount, maxRetries, 'Should retry until success');
-  assert.strictEqual(result.text, 'Success');
+  assert.strictEqual(reference, '1 Nephi 3:7');
+  assert.strictEqual(text, 'And it came to pass...');
 });
 
-test('fetchWithRetry - Should throw after all retries fail', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  const delayMs = 50;
+test('Verse data - Should handle string format', () => {
+  const verse = '1 Nephi 3:7';
   
-  async function mockFetch() {
-    attemptCount++;
-    throw new Error('Always fails');
-  }
+  const reference = typeof verse === 'string' ? verse : (verse.reference || '');
+  const text = typeof verse === 'string' ? '' : (verse.text || '');
   
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockFetch, maxRetries, delayMs);
-  }, /Always fails/);
-  
-  assert.strictEqual(attemptCount, maxRetries, 'Should attempt all retries');
+  assert.strictEqual(reference, '1 Nephi 3:7');
+  assert.strictEqual(text, '');
 });
 
 console.log('All node_helper comprehensive tests defined');

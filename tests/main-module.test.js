@@ -224,6 +224,28 @@ test('DOM structure - Fallback to loading if no data', () => {
   assert.strictEqual(shouldShowLoading, true);
 });
 
+test('DOM structure - Header should display when configured', () => {
+  const config = { header: "Verse of the day" };
+  const shouldShowHeader = config.header && config.header.length > 0;
+  
+  assert.strictEqual(shouldShowHeader, true);
+  assert.strictEqual(config.header, "Verse of the day");
+});
+
+test('DOM structure - Header should not display when empty', () => {
+  const config = { header: "" };
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  
+  assert.strictEqual(shouldShowHeader, false);
+});
+
+test('DOM structure - Header should not display when null', () => {
+  const config = { header: null };
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  
+  assert.strictEqual(shouldShowHeader, false);
+});
+
 /**
  * Test text sanitization logic
  */

@@ -27,10 +27,13 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
      module: "MMM-DailyLDSVerse",
      position: "top_center",
      config: {
-       updateInterval: 86400000  // Optional, defaults to daily
+       header: "Verse of the day",  // Optional, defaults to "Verse of the day"
+       updateInterval: 86400000     // Optional, defaults to daily at midnight
      }
    }
    ```
+
+6. Restart Magic Mirror to load the module.
 
 ## Verse Lists
 
@@ -57,6 +60,7 @@ The **LDS Documentation Project** (https://scriptures.nephi.org) provides downlo
 
 **Option A: Use the setup script** (easiest):
 ```bash
+chmod +x setup-verse-lists.sh  # Make script executable (first time only)
 ./setup-verse-lists.sh ~/Downloads/lds-scriptures-2020.12.08/json/lds-scriptures-json.txt
 ```
 
@@ -94,15 +98,11 @@ The script generates JSON files with verse data:
 
 **Note**: If verse text is not available in the source data, the `text` field will be empty and only the reference will be displayed.
 
-### Method 2: Using API (If Available)
+### Method 2: Using generate-verse-lists.js (Deprecated)
 
-If you have access to a working scripture API, you can use the original generation script:
+The `generate-verse-lists.js` script is deprecated and requires API configuration. It's recommended to use `convert-lds-data.js` instead (Method 1).
 
-```bash
-node generate-verse-lists.js
-```
-
-**Note**: The Open Scripture API mentioned in the spec does not exist as a public API. See `API_RESEARCH.md` for details.
+**Note**: The module uses local verse list files from the LDS Documentation Project. No API is required for normal operation.
 
 ### Method 3: Structure-Based Generation (Placeholder)
 
@@ -137,6 +137,7 @@ The script will overwrite existing files with fresh data.
 
 | Option | Description | Default | Example |
 |--------|-------------|---------|---------|
+| `header` | Header text to display above the verse. Set to empty string or `null` to hide the header | `"Verse of the day"` | `"Daily Scripture"` |
 | `updateInterval` | Update interval in milliseconds. Set to `0`, `null`, or omit to use midnight updates | `null` (midnight) | `86400000` (24 hours) |
 
 ### Configuration Examples
@@ -146,7 +147,30 @@ The script will overwrite existing files with fresh data.
 {
   module: "MMM-DailyLDSVerse",
   position: "top_center"
-  // No config needed - updates at midnight by default
+  // No config needed - updates at midnight by default, shows "Verse of the day" header
+}
+```
+
+#### Custom Header
+```javascript
+{
+  module: "MMM-DailyLDSVerse",
+  position: "top_center",
+  config: {
+    header: "Daily Scripture"  // Custom header text
+  }
+}
+```
+
+#### Hide Header
+```javascript
+{
+  module: "MMM-DailyLDSVerse",
+  position: "top_center",
+  config: {
+    header: ""  // Empty string hides the header
+    // or header: null
+  }
 }
 ```
 
@@ -213,21 +237,22 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 ### Verse Text Not Displaying
 
 1. **Check verse list format**: Verify JSON files contain verse objects with `text` field
-2. **Local files only**: If verse lists only have references (no text), only references will display
-3. **API fallback**: If API is configured, module will attempt to fetch text (but API may not be available)
-4. **Check logs**: Look for messages about verse text availability
+2. **Verify file structure**: Verse files should be arrays of objects with `reference` and `text` properties
+3. **Check file content**: Use `head verses/book-of-mormon.json` to verify the format
+4. **Regenerate if needed**: If files are corrupted, regenerate using `convert-lds-data.js`
 
 ### Empty Verse Lists
 
-1. **Generate verse lists**: Run `node generate-verse-lists.js` to create verse list files
-2. **Check file permissions**: Ensure the `verses/` directory is readable
-3. **Verify file format**: Check that JSON files are valid JSON arrays
-4. **Check file location**: Ensure verse files are in the `verses/` directory
+1. **Verify files exist**: Check that all four JSON files exist in the `verses/` directory
+2. **Regenerate verse lists**: If files are missing or empty, run `node convert-lds-data.js <input-file> verses/`
+3. **Check file permissions**: Ensure the `verses/` directory is readable
+4. **Verify file format**: Check that JSON files are valid JSON arrays
+5. **Check file location**: Ensure verse files are in the `verses/` directory
 
 ### Common Issues
 
 **Issue**: Module shows "Loading verse..." indefinitely
-- **Solution**: Check that node_helper is running and can access the API
+- **Solution**: Check that verse list files exist and are valid JSON. Restart Magic Mirror.
 
 **Issue**: Module shows "Unable to load scripture verse"
 - **Solution**: Check that verse list files exist and contain valid data. Verify JSON format is correct.
@@ -243,7 +268,8 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 - **Daily Verse Rotation**: Automatically cycles through four volumes (Bible, Book of Mormon, Doctrine and Covenants, Pearl of Great Price)
 - **Verse Variety**: Ensures different verses are shown each day, even for the same volume
 - **Automatic Updates**: Updates at midnight (default) or at custom intervals
-- **Error Handling**: Robust retry logic with graceful error handling
+- **Error Handling**: Graceful error handling for missing files and invalid data
+- **Customizable Header**: Display a custom header above the verse (or hide it)
 - **Leap Year Support**: Handles leap years correctly (366 days)
 - **Minimal Configuration**: Works out of the box with sensible defaults
 
@@ -268,7 +294,8 @@ npm test
 - `tests/node-helper.test.js` - Core utility function tests
 - `tests/node-helper-complete.test.js` - Comprehensive node_helper tests
 - `tests/main-module.test.js` - Main module tests
-- `tests/generate-verse-lists.test.js` - Verse list generation tests
+- `tests/convert-lds-data.test.js` - Verse list conversion tests
+- `tests/generate-verse-lists.test.js` - Verse list generation tests (deprecated script)
 - `tests/error-handling.test.js` - Error handling and edge case tests
 - `tests/validation.test.js` - Functional and data validation tests
 - `tests/configuration.test.js` - Configuration tests

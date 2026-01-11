@@ -118,5 +118,45 @@ test('Common intervals - 30 minutes', () => {
   assert.strictEqual(minutes, 30);
 });
 
+/**
+ * Test header configuration
+ */
+test('Configuration - Should have header default', () => {
+  const defaults = {
+    updateInterval: 86400000,
+    header: "Verse of the day"
+  };
+  
+  assert.ok(defaults.header);
+  assert.strictEqual(typeof defaults.header, 'string');
+  assert.strictEqual(defaults.header, "Verse of the day");
+});
+
+test('Configuration - Should allow custom header', () => {
+  const config = {
+    header: "Daily Scripture"
+  };
+  
+  assert.strictEqual(config.header, "Daily Scripture");
+});
+
+test('Configuration - Should allow empty header to hide it', () => {
+  const config = {
+    header: ""
+  };
+  
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  assert.strictEqual(shouldShowHeader, false);
+});
+
+test('Configuration - Should allow null header to hide it', () => {
+  const config = {
+    header: null
+  };
+  
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  assert.strictEqual(shouldShowHeader, false);
+});
+
 console.log('All configuration tests defined');
 

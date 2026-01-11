@@ -1,6 +1,6 @@
 /**
  * Comprehensive error handling and edge case tests
- * Phase 6: Error Handling & Edge Cases
+ * Tests error handling for local file operations and data validation
  */
 
 const { test } = require('node:test');
@@ -9,95 +9,25 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Test API unavailable (network error) scenarios
+ * Test file loading error scenarios
  */
-test('Error: API unavailable - Should retry and eventually fail', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  const delayMs = 100; // Short delay for testing
+test('Error: Missing verse list file - Should handle gracefully', () => {
+  const versesDir = path.join(__dirname, '..', 'verses');
+  const missingFile = path.join(versesDir, 'nonexistent.json');
   
-  async function mockAPICall() {
-    attemptCount++;
-    throw new Error('Network error: ECONNREFUSED');
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
+  let loaded = false;
+  try {
+    if (fs.existsSync(missingFile)) {
+      const data = fs.readFileSync(missingFile, 'utf8');
+      JSON.parse(data);
+      loaded = true;
     }
+  } catch (error) {
+    // Should handle gracefully
+    loaded = false;
   }
   
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockAPICall, maxRetries, delayMs);
-  }, /Network error/);
-  
-  assert.strictEqual(attemptCount, maxRetries, 'Should attempt all retries');
-});
-
-test('Error: API timeout - Should retry and eventually fail', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  
-  async function mockAPICall() {
-    attemptCount++;
-    throw new Error('Request timeout');
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockAPICall, maxRetries, 50);
-  }, /Request timeout/);
-  
-  assert.strictEqual(attemptCount, maxRetries);
-});
-
-test('Error: API 500 error - Should retry', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  
-  async function mockAPICall() {
-    attemptCount++;
-    if (attemptCount < 3) {
-      throw new Error('API returned status 500: Internal Server Error');
-    }
-    return { text: 'Success after retry', reference: '1 Nephi 3:7' };
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  const result = await fetchWithRetry(mockAPICall, maxRetries, 50);
-  assert.strictEqual(attemptCount, 3);
-  assert.strictEqual(result.text, 'Success after retry');
+  assert.strictEqual(loaded, false, 'Should not load non-existent file');
 });
 
 /**
@@ -135,104 +65,6 @@ test('Error: Invalid verse reference - Should parse correctly', () => {
   assert.strictEqual(parseInt(match[3], 10), 7);
 });
 
-test('Error: API 404 error - Should not retry (invalid reference)', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  
-  async function mockAPICall() {
-    attemptCount++;
-    throw new Error('API returned status 404: Not Found');
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        // 4xx errors might not need retry, but current implementation retries all
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockAPICall, maxRetries, 50);
-  }, /404/);
-  
-  assert.strictEqual(attemptCount, maxRetries);
-});
-
-/**
- * Test retry logic scenarios
- */
-test('Retry: Should succeed on second attempt', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  
-  async function mockAPICall() {
-    attemptCount++;
-    if (attemptCount === 1) {
-      throw new Error('First attempt failed');
-    }
-    return { text: 'Success', reference: '1 Nephi 3:7' };
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  const result = await fetchWithRetry(mockAPICall, maxRetries, 50);
-  assert.strictEqual(attemptCount, 2);
-  assert.strictEqual(result.text, 'Success');
-});
-
-test('Retry: Should wait between retries', async () => {
-  let attemptCount = 0;
-  const delays = [];
-  const maxRetries = 3;
-  const delayMs = 100;
-  
-  async function mockAPICall() {
-    const start = Date.now();
-    attemptCount++;
-    if (attemptCount > 1) {
-      delays.push(Date.now() - start);
-    }
-    throw new Error('Always fails');
-  }
-  
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockAPICall, maxRetries, delayMs);
-  });
-  
-  // Should have attempted all retries
-  assert.strictEqual(attemptCount, maxRetries);
-});
 
 /**
  * Test error message display
@@ -267,6 +99,28 @@ test('Error message: Should handle error recovery', () => {
   
   assert.strictEqual(state.hasError, false);
   assert.ok(state.verseText);
+});
+
+test('Error: Invalid verse data format - Should handle gracefully', () => {
+  const invalidVerses = [
+    '1 Nephi 3:7',  // Valid string
+    123,            // Invalid (number)
+    { verse: '1 Nephi 3:7' },  // Invalid (wrong object structure)
+    'invalid',      // Invalid (no chapter:verse)
+    null            // Invalid (null)
+  ];
+  
+  const validVerses = invalidVerses.filter(v => {
+    if (typeof v === 'string' && v.includes(':')) {
+      return true;
+    }
+    if (v && typeof v === 'object' && v.reference) {
+      return true;
+    }
+    return false;
+  });
+  
+  assert.strictEqual(validVerses.length, 1, 'Should filter invalid verses');
 });
 
 /**
