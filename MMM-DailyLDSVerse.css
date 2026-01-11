@@ -4,8 +4,8 @@
  */
 
 .MMM-DailyLDSVerse {
-  width: auto;
-  max-width: 100%;
+  display: block;
+  width: 100%;
   text-align: left;
   line-height: 1.4;
 }
@@ -14,8 +14,6 @@
 .region.top_right .MMM-DailyLDSVerse,
 .region.bottom_right .MMM-DailyLDSVerse {
   text-align: right;
-  width: auto;
-  max-width: 100%;
 }
 
 /* Center-aligned positions */
@@ -23,16 +21,12 @@
 .region.middle_center .MMM-DailyLDSVerse,
 .region.bottom_center .MMM-DailyLDSVerse {
   text-align: center;
-  width: auto;
-  max-width: 100%;
 }
 
 /* Left-aligned positions */
 .region.top_left .MMM-DailyLDSVerse,
 .region.bottom_left .MMM-DailyLDSVerse {
   text-align: left;
-  width: auto;
-  max-width: 100%;
 }
 
 /* Header styling */
@@ -72,11 +66,6 @@
   opacity: 0.8;
 }
 
-/* Ensure module doesn't break layout */
-.MMM-DailyLDSVerse {
-  display: inline-block;
-  vertical-align: top;
-}
 
 /* For right-aligned regions, ensure content aligns right */
 .region.top_right .MMM-DailyLDSVerse .verse-header,
