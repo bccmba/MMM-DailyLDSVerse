@@ -8,6 +8,10 @@
   module: "MMM-DailyLDSVerse",
   position: "top_center",  // Optional: position on screen
   config: {
+    // Optional: Header text to display above the verse
+    // Set to empty string or null to hide the header
+    header: "Verse of the day",  // Optional, defaults to "Verse of the day"
+    
     // Optional: Update interval in milliseconds
     // If not specified, defaults to once per day at midnight
     // Examples:

@@ -9,6 +9,7 @@ Module.register("MMM-DailyLDSVerse", {
   // Default module config
   defaults: {
     updateInterval: 86400000, // 24 hours in milliseconds
+    header: "Verse of the day", // Header text to display above the verse
   },
 
   // Load CSS stylesheet
@@ -151,6 +152,14 @@ Module.register("MMM-DailyLDSVerse", {
   getDom: function() {
     const wrapper = document.createElement("div");
     wrapper.className = "MMM-DailyLDSVerse";
+
+    // Add header if configured
+    if (this.config.header) {
+      const headerDiv = document.createElement("div");
+      headerDiv.className = "verse-header";
+      headerDiv.textContent = this.config.header;
+      wrapper.appendChild(headerDiv);
+    }
 
     if (this.isLoading) {
       const loading = document.createElement("div");
