@@ -291,14 +291,40 @@ npm test
 
 ### Test Files
 
+**Unit Tests:**
 - `tests/node-helper.test.js` - Core utility function tests
 - `tests/node-helper-complete.test.js` - Comprehensive node_helper tests
 - `tests/main-module.test.js` - Main module tests
+- `tests/configuration.test.js` - Configuration tests
+- `tests/validation.test.js` - Functional and data validation tests
+- `tests/error-handling.test.js` - Error handling and edge case tests
 - `tests/convert-lds-data.test.js` - Verse list conversion tests
 - `tests/generate-verse-lists.test.js` - Verse list generation tests (deprecated script)
-- `tests/error-handling.test.js` - Error handling and edge case tests
-- `tests/validation.test.js` - Functional and data validation tests
-- `tests/configuration.test.js` - Configuration tests
+
+**Integration Tests:**
+- `tests/integration.test.js` - Module and node_helper integration
+- `tests/file-system.test.js` - File system operations
+- `tests/module-lifecycle.test.js` - Module lifecycle management
+
+**End-to-End Tests:**
+- `tests/e2e-flow.test.js` - Complete user flows
+
+**Performance Tests:**
+- `tests/performance.test.js` - Performance and load characteristics
+
+**DOM Tests:**
+- `tests/dom-rendering.test.js` - DOM structure and rendering
+
+### Running Tests by Category
+
+```bash
+npm test                    # Run all tests
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests
+npm run test:e2e           # End-to-end tests
+npm run test:performance   # Performance tests
+npm run test:dom           # DOM rendering tests
+```
 
 ### Project Structure
 
