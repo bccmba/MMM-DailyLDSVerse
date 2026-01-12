@@ -1,5 +1,7 @@
 # MMM-DailyLDSVerse
 
+[![CI](https://github.com/bccmba/MMM-DailyLDSVerse/workflows/CI/badge.svg)](https://github.com/bccmba/MMM-DailyLDSVerse/actions)
+
 A Magic Mirror module that displays a daily scripture verse from LDS scriptures (King James Version Bible, Book of Mormon, Doctrine and Covenants, Pearl of Great Price).
 
 ## Installation
@@ -286,8 +288,22 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 ### Running Tests
 
 ```bash
-npm test
+npm test                    # Run all tests
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests
+npm run test:e2e           # End-to-end tests
+npm run test:performance   # Performance tests
+npm run test:dom           # DOM rendering tests
 ```
+
+### CI/CD
+
+The module includes CI/CD pipelines for automated testing:
+
+- **GitHub Actions**: Runs on every push and pull request
+- **GitLab CI**: Alternative CI/CD configuration included
+
+See [CI_CD_SETUP.md](CI_CD_SETUP.md) for detailed setup instructions.
 
 ### Test Files
 

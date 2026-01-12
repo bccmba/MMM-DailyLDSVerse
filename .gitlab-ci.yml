@@ -1,0 +1,111 @@
+# GitLab CI/CD Pipeline Configuration
+
+stages:
+  - test
+  - lint
+  - build
+
+variables:
+  NODE_VERSION: "20"
+
+# Cache node_modules for faster builds
+cache:
+  paths:
+    - node_modules/
+
+# Test job
+test:unit:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - echo "Verifying verse list files..."
+    - ls -lh verses/*.json
+    - test -f verses/bible.json
+    - test -f verses/book-of-mormon.json
+    - test -f verses/doctrine-and-covenants.json
+    - test -f verses/pearl-of-great-price.json
+    - echo "Verifying verse list file format..."
+    - node -e "const fs=require('fs'); const files=['verses/bible.json','verses/book-of-mormon.json','verses/doctrine-and-covenants.json','verses/pearl-of-great-price.json']; files.forEach(f=>{const d=JSON.parse(fs.readFileSync(f,'utf8')); if(!Array.isArray(d)||d.length===0)throw new Error(f+' is invalid'); console.log(f+': '+d.length+' verses');})"
+    - echo "Running unit tests..."
+    - npm run test:unit
+  only:
+    - main
+    - develop
+    - merge_requests
+
+test:integration:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm run test:integration
+  only:
+    - main
+    - develop
+    - merge_requests
+
+test:e2e:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm run test:e2e
+  only:
+    - main
+    - develop
+    - merge_requests
+
+test:all:
+  stage: test
+  image: node:${NODE_VERSION}
+  script:
+    - npm test
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Lint job
+lint:
+  stage: lint
+  image: node:${NODE_VERSION}
+  script:
+    - echo "Checking JavaScript syntax..."
+    - node -c MMM-DailyLDSVerse.js
+    - node -c node_helper.js
+    - node -c convert-lds-data.js
+    - node -c generate-verse-lists.js
+    - echo "Verifying JSON files..."
+    - node -e "const fs=require('fs'); ['package.json'].forEach(f=>{JSON.parse(fs.readFileSync(f,'utf8'));})"
+    - for file in verses/*.json; do
+        node -e "JSON.parse(require('fs').readFileSync('$file','utf8'))";
+        echo "✓ $file is valid JSON";
+      done
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Build verification job
+build:
+  stage: build
+  image: node:${NODE_VERSION}
+  script:
+    - echo "Verifying module structure..."
+    - test -f MMM-DailyLDSVerse.js
+    - test -f node_helper.js
+    - test -f package.json
+    - test -f README.md
+    - test -f config.example.js
+    - test -d tests
+    - test -d verses
+    - echo "✓ All required files and directories present"
+    - echo "Verifying verse list files..."
+    - test -f verses/bible.json
+    - test -f verses/book-of-mormon.json
+    - test -f verses/doctrine-and-covenants.json
+    - test -f verses/pearl-of-great-price.json
+    - echo "✓ All verse list files present"
+  only:
+    - main
+    - develop
+    - merge_requests
+

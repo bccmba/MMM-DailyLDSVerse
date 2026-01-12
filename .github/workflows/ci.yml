@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Verify verse list files exist
+      run: |
+        echo "Verifying verse list files..."
+        ls -lh verses/*.json
+        test -f verses/bible.json
+        test -f verses/book-of-mormon.json
+        test -f verses/doctrine-and-covenants.json
+        test -f verses/pearl-of-great-price.json
+    
+    - name: Verify verse list file format
+      run: |
+        echo "Verifying verse list file format..."
+        node -e "const fs=require('fs'); const files=['verses/bible.json','verses/book-of-mormon.json','verses/doctrine-and-covenants.json','verses/pearl-of-great-price.json']; files.forEach(f=>{const d=JSON.parse(fs.readFileSync(f,'utf8')); if(!Array.isArray(d)||d.length===0)throw new Error(f+' is invalid'); console.log(f+': '+d.length+' verses');})"
+    
+    - name: Run unit tests
+      run: npm run test:unit
+    
+    - name: Run integration tests
+      run: npm run test:integration
+    
+    - name: Run E2E tests
+      run: npm run test:e2e
+    
+    - name: Run DOM tests
+      run: npm run test:dom
+    
+    - name: Run performance tests
+      run: npm run test:performance
+      continue-on-error: true  # Performance tests may vary by environment
+    
+    - name: Run all tests
+      run: npm test
+
+  lint:
+    name: Lint Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Check for syntax errors
+      run: |
+        echo "Checking JavaScript syntax..."
+        node -c MMM-DailyLDSVerse.js
+        node -c node_helper.js
+        node -c convert-lds-data.js
+        node -c generate-verse-lists.js
+    
+    - name: Verify JSON files
+      run: |
+        echo "Verifying JSON files..."
+        node -e "const fs=require('fs'); ['package.json','config.example.js'].forEach(f=>{try{JSON.parse(fs.readFileSync(f,'utf8'));}catch(e){if(f.includes('.js')){console.log('Skipping JS file:',f);}else{throw e;}}})"
+        # Verify verse files are valid JSON
+        for file in verses/*.json; do
+          node -e "JSON.parse(require('fs').readFileSync('$file','utf8'))"
+          echo "✓ $file is valid JSON"
+        done
+
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Verify module structure
+      run: |
+        echo "Verifying module structure..."
+        test -f MMM-DailyLDSVerse.js
+        test -f node_helper.js
+        test -f package.json
+        test -f README.md
+        test -f config.example.js
+        test -d tests
+        test -d verses
+        echo "✓ All required files and directories present"
+    
+    - name: Verify verse list files
+      run: |
+        echo "Verifying verse list files..."
+        test -f verses/bible.json
+        test -f verses/book-of-mormon.json
+        test -f verses/doctrine-and-covenants.json
+        test -f verses/pearl-of-great-price.json
+        echo "✓ All verse list files present"
+    
+    - name: Check file sizes
+      run: |
+        echo "Checking verse list file sizes..."
+        for file in verses/*.json; do
+          size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+          echo "$file: $size bytes"
+          if [ "$size" -lt 1000 ]; then
+            echo "⚠ Warning: $file is very small"
+          fi
+        done
+
