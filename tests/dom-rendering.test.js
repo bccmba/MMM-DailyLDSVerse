@@ -20,7 +20,7 @@ test('DOM Rendering: Loading state should have correct structure', () => {
   const elements = [];
   
   if (header) {
-    elements.push({ type: 'header', className: 'verse-header', text: header });
+    elements.push({ type: 'header', tagName: 'header', text: header });
   }
   
   if (isLoading) {
@@ -44,7 +44,7 @@ test('DOM Rendering: Error state should have correct structure', () => {
   const elements = [];
   
   if (header) {
-    elements.push({ type: 'header', className: 'verse-header', text: header });
+    elements.push({ type: 'header', tagName: 'header', text: header });
   }
   
   if (hasError) {
@@ -67,7 +67,7 @@ test('DOM Rendering: Success state should have correct structure', () => {
   const elements = [];
   
   if (header) {
-    elements.push({ type: 'header', className: 'verse-header', text: header });
+    elements.push({ type: 'header', tagName: 'header', text: header });
   }
   
   if (verseText && verseReference) {
@@ -91,7 +91,7 @@ test('DOM Rendering: Header should be hidden when empty', () => {
   const elements = [];
   
   if (header) {
-    elements.push({ type: 'header', className: 'verse-header', text: header });
+    elements.push({ type: 'header', tagName: 'header', text: header });
   }
   
   if (verseText && verseReference) {
@@ -111,7 +111,7 @@ test('DOM Rendering: Header should be hidden when null', () => {
   const elements = [];
   
   if (header) {
-    elements.push({ type: 'header', className: 'verse-header', text: header });
+    elements.push({ type: 'header', tagName: 'header', text: header });
   }
   
   if (verseText && verseReference) {
@@ -125,16 +125,16 @@ test('DOM Rendering: Header should be hidden when null', () => {
 /**
  * Test CSS class application
  */
-test('DOM Rendering: Should apply correct CSS classes', () => {
+test('DOM Rendering: Should apply correct CSS classes and elements', () => {
   const wrapperClass = 'MMM-DailyLDSVerse';
-  const headerClass = 'verse-header';
+  const headerTagName = 'header'; // Uses standard Magic Mirror header element
   const verseTextClass = 'verse-text';
   const verseReferenceClass = 'verse-reference';
   const loadingClass = 'loading';
   const errorClass = 'error';
   
   assert.strictEqual(wrapperClass, 'MMM-DailyLDSVerse', 'Wrapper should have correct class');
-  assert.strictEqual(headerClass, 'verse-header', 'Header should have correct class');
+  assert.strictEqual(headerTagName, 'header', 'Header should use standard header element');
   assert.strictEqual(verseTextClass, 'verse-text', 'Verse text should have correct class');
   assert.strictEqual(verseReferenceClass, 'verse-reference', 'Reference should have correct class');
   assert.strictEqual(loadingClass, 'loading', 'Loading should have correct class');

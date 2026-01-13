@@ -153,12 +153,11 @@ Module.register("MMM-DailyLDSVerse", {
     const wrapper = document.createElement("div");
     wrapper.className = "MMM-DailyLDSVerse";
 
-    // Add header if configured
-    if (this.config.header) {
-      const headerDiv = document.createElement("div");
-      headerDiv.className = "verse-header";
-      headerDiv.textContent = this.config.header;
-      wrapper.appendChild(headerDiv);
+    // Add header if configured (using Magic Mirror's standard header element)
+    if (this.config.header && this.config.header.length > 0) {
+      const header = document.createElement("header");
+      header.textContent = this.config.header;
+      wrapper.appendChild(header);
     }
 
     if (this.isLoading) {

@@ -1,11 +1,13 @@
 /**
  * Styles for MMM-DailyLDSVerse module
  * Ensures proper width constraints and alignment for all positions
+ * Matches Magic Mirror module conventions
  */
 
 .MMM-DailyLDSVerse {
   display: block;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   text-align: left;
   line-height: 1.4;
 }
@@ -29,13 +31,8 @@
   text-align: left;
 }
 
-/* Header styling */
-.MMM-DailyLDSVerse .verse-header {
-  font-size: 1.1em;
-  font-weight: bold;
-  margin-bottom: 0.8em;
-  opacity: 0.9;
-}
+/* Header uses Magic Mirror's standard header styling (inherits from main.css) */
+/* No custom header styling needed - Magic Mirror's header styles apply automatically */
 
 /* Verse text styling */
 .MMM-DailyLDSVerse .verse-text {
@@ -43,6 +40,7 @@
   margin-bottom: 0.5em;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Verse reference styling */
@@ -51,6 +49,7 @@
   font-style: italic;
   opacity: 0.8;
   margin-top: 0.3em;
+  max-width: 100%;
 }
 
 /* Loading state */
@@ -64,39 +63,5 @@
   font-size: 0.9em;
   color: #ff6b6b;
   opacity: 0.8;
-}
-
-
-/* For right-aligned regions, ensure content aligns right */
-.region.top_right .MMM-DailyLDSVerse .verse-header,
-.region.top_right .MMM-DailyLDSVerse .verse-text,
-.region.top_right .MMM-DailyLDSVerse .verse-reference,
-.region.bottom_right .MMM-DailyLDSVerse .verse-header,
-.region.bottom_right .MMM-DailyLDSVerse .verse-text,
-.region.bottom_right .MMM-DailyLDSVerse .verse-reference {
-  text-align: right;
-}
-
-/* For center-aligned regions */
-.region.top_center .MMM-DailyLDSVerse .verse-header,
-.region.top_center .MMM-DailyLDSVerse .verse-text,
-.region.top_center .MMM-DailyLDSVerse .verse-reference,
-.region.middle_center .MMM-DailyLDSVerse .verse-header,
-.region.middle_center .MMM-DailyLDSVerse .verse-text,
-.region.middle_center .MMM-DailyLDSVerse .verse-reference,
-.region.bottom_center .MMM-DailyLDSVerse .verse-header,
-.region.bottom_center .MMM-DailyLDSVerse .verse-text,
-.region.bottom_center .MMM-DailyLDSVerse .verse-reference {
-  text-align: center;
-}
-
-/* For left-aligned regions */
-.region.top_left .MMM-DailyLDSVerse .verse-header,
-.region.top_left .MMM-DailyLDSVerse .verse-text,
-.region.top_left .MMM-DailyLDSVerse .verse-reference,
-.region.bottom_left .MMM-DailyLDSVerse .verse-header,
-.region.bottom_left .MMM-DailyLDSVerse .verse-text,
-.region.bottom_left .MMM-DailyLDSVerse .verse-reference {
-  text-align: left;
 }
 
