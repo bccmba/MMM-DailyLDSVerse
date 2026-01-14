@@ -73,6 +73,9 @@ lint:
     - node -c node_helper.js
     - node -c convert-lds-data.js
     - node -c generate-verse-lists.js
+    - echo "Checking CSS file exists..."
+    - test -f MMM-DailyLDSVerse.css
+    - echo "✓ CSS file present"
     - echo "Verifying JSON files..."
     - node -e "const fs=require('fs'); ['package.json'].forEach(f=>{JSON.parse(fs.readFileSync(f,'utf8'));})"
     - for file in verses/*.json; do
@@ -91,6 +94,7 @@ build:
   script:
     - echo "Verifying module structure..."
     - test -f MMM-DailyLDSVerse.js
+    - test -f MMM-DailyLDSVerse.css
     - test -f node_helper.js
     - test -f package.json
     - test -f README.md

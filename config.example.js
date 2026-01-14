@@ -2,6 +2,9 @@
  * Example configuration for MMM-DailyLDSVerse
  * 
  * Add this to your Magic Mirror config/config.js file
+ * 
+ * Note: The module's CSS file (MMM-DailyLDSVerse.css) is automatically 
+ * loaded by Magic Mirror - no additional configuration needed.
  */
 
 {

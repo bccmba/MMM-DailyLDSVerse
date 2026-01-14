@@ -1,13 +1,13 @@
 /**
  * Verse List Generation Script (API-based)
  * 
- * NOTE: This script was designed for API-based generation, but the Open Scripture API
- * does not exist as a public API. 
+ * ⚠️ DEPRECATED: This script requires API configuration which is not available.
+ * The module now uses local verse list files from the LDS Documentation Project.
  * 
  * RECOMMENDED: Use convert-lds-data.js instead to convert LDS Documentation Project
  * data files to verse list JSON files.
  * 
- * This script is kept for reference in case an API becomes available in the future.
+ * This script is kept for reference only in case an API becomes available in the future.
  * 
  * Usage: node generate-verse-lists.js
  */

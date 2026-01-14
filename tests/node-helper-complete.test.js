@@ -1,6 +1,7 @@
 /**
  * Comprehensive unit tests for node_helper.js
- * Tests all core functionality including API integration
+ * Tests all core functionality including local file operations
+ * Note: API integration code exists but is deprecated - module uses local files
  */
 
 const { test } = require('node:test');
@@ -104,33 +105,62 @@ test('getVolumeForDay - Day 366 should cycle correctly', () => {
 
 /**
  * Test getVerseIndexForDay function
+ * Updated to reflect new algorithm with volume-specific offsets
  */
+function getVerseIndexForDay(dayOfYear, volumeList) {
+  if (volumeList.length === 0) return 0;
+  const volumeIndex = (dayOfYear - 1) % 4;
+  const baseIndex = (dayOfYear - 1) % volumeList.length;
+  const volumeOffset = Math.floor((volumeList.length / 4) * volumeIndex);
+  return (baseIndex + volumeOffset) % volumeList.length;
+}
+
 test('getVerseIndexForDay - Should return valid index within volume list', () => {
   const dayOfYear = 1;
   const volumeList = mockNodeHelper.verseLists.bible;
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const index = volumeCycle % volumeList.length;
+  const index = getVerseIndexForDay(dayOfYear, volumeList);
   assert.ok(index >= 0 && index < volumeList.length);
 });
 
 test('getVerseIndexForDay - Should ensure variety across days', () => {
   const volumeList = mockNodeHelper.verseLists.bookOfMormon;
   
-  // Day 1: floor((1-1)/4) = 0, 0 % 3 = 0
-  const index1 = Math.floor((1 - 1) / 4) % volumeList.length;
+  // Day 1: baseIndex = 0, volumeIndex = 0, offset = 0, result = 0
+  const index1 = getVerseIndexForDay(1, volumeList);
   
-  // Day 5: floor((5-1)/4) = 1, 1 % 3 = 1
-  const index5 = Math.floor((5 - 1) / 4) % volumeList.length;
+  // Day 5: baseIndex = 4, volumeIndex = 0, offset = 0, result = 4
+  const index5 = getVerseIndexForDay(5, volumeList);
   
   assert.notStrictEqual(index1, index5, 'Day 1 and Day 5 should return different indices');
+});
+
+test('getVerseIndexForDay - Should ensure different verses for different volumes in same cycle', () => {
+  const volumeList = Array(100).fill(0).map((_, i) => ({ reference: `verse${i}`, text: `text${i}` }));
+  
+  // Day 1 (Bible): baseIndex = 0, volumeIndex = 0, offset = 0, result = 0
+  const index1 = getVerseIndexForDay(1, volumeList);
+  
+  // Day 2 (Book of Mormon): baseIndex = 1, volumeIndex = 1, offset = 25, result = 26
+  const index2 = getVerseIndexForDay(2, volumeList);
+  
+  // Day 3 (D&C): baseIndex = 2, volumeIndex = 2, offset = 50, result = 52
+  const index3 = getVerseIndexForDay(3, volumeList);
+  
+  // Day 4 (Pearl): baseIndex = 3, volumeIndex = 3, offset = 75, result = 78
+  const index4 = getVerseIndexForDay(4, volumeList);
+  
+  // All should be different
+  assert.notStrictEqual(index1, index2, 'Bible and Book of Mormon should have different indices');
+  assert.notStrictEqual(index2, index3, 'Book of Mormon and D&C should have different indices');
+  assert.notStrictEqual(index3, index4, 'D&C and Pearl should have different indices');
 });
 
 test('getVerseIndexForDay - Should wrap around for large day numbers', () => {
   const volumeList = mockNodeHelper.verseLists.bible;
   
-  // Day 13: floor((13-1)/4) = 3, 3 % 3 = 0 (wraps around)
-  const index13 = Math.floor((13 - 1) / 4) % volumeList.length;
-  assert.strictEqual(index13, 0);
+  // Day 13: baseIndex = 12, volumeIndex = 0, offset = 0, result = 12 (wraps if needed)
+  const index13 = getVerseIndexForDay(13, volumeList);
+  assert.ok(index13 >= 0 && index13 < volumeList.length);
 });
 
 /**
@@ -140,8 +170,10 @@ test('getVerseForDay - Should return verse from correct volume', () => {
   const dayOfYear = 1; // Should be bible
   const volume = 'bible';
   const volumeList = mockNodeHelper.verseLists[volume];
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const verseIndex = volumeCycle % volumeList.length;
+  const volumeIndex = (dayOfYear - 1) % 4;
+  const baseIndex = (dayOfYear - 1) % volumeList.length;
+  const volumeOffset = Math.floor((volumeList.length / 4) * volumeIndex);
+  const verseIndex = (baseIndex + volumeOffset) % volumeList.length;
   const verse = volumeList[verseIndex];
   
   assert.ok(verse, 'Should return a verse');

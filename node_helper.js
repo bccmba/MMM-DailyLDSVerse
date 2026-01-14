@@ -1,14 +1,14 @@
 /**
  * Node Helper for MMM-DailyLDSVerse
  * 
- * Handles API calls and verse selection logic
+ * Handles verse selection logic and local file operations
+ * Note: Contains deprecated API code for backward compatibility
+ * Module primarily uses local verse list files from LDS Documentation Project
  */
 
 const NodeHelper = require("node_helper");
 const fs = require("fs");
 const path = require("path");
-const https = require("https");
-const http = require("http");
 
 module.exports = NodeHelper.create({
   // Module state
@@ -18,6 +18,8 @@ module.exports = NodeHelper.create({
     doctrineAndCovenants: [],
     pearlOfGreatPrice: []
   },
+  // Deprecated: API configuration (kept for backward compatibility)
+  // Module now uses local files - API code is not used in normal operation
   apiBaseUrl: null, // To be determined from API research
   apiEndpointPattern: null, // To be determined from API research
 
@@ -34,6 +36,8 @@ module.exports = NodeHelper.create({
 
   /**
    * Load API configuration from API_RESEARCH.md or environment variables
+   * DEPRECATED: This method is kept for backward compatibility.
+   * Module now uses local files - API calls are not used in normal operation.
    * Reads API base URL and endpoint pattern from API_RESEARCH.md file or environment variables
    * Falls back to environment variables if file doesn't exist or doesn't contain config
    * @function loadAPIConfig
@@ -151,9 +155,9 @@ module.exports = NodeHelper.create({
 
   /**
    * Get verse index for a given day (ensures variety)
-   * Uses a formula to ensure different verses are shown for the same volume on different days
-   * Formula: floor((dayOfYear - 1) / 4) % volumeList.length
-   * This ensures variety while cycling through all verses in the volume
+   * Uses a formula to ensure different verses are shown for each volume each day
+   * Formula combines day of year with volume-specific offset for better distribution
+   * This ensures each volume gets a different verse even within the same 4-day cycle
    * @function getVerseIndexForDay
    * @param {number} dayOfYear - Day of year (1-366)
    * @param {Array<string>} volumeList - Array of verse references for the volume
@@ -161,9 +165,21 @@ module.exports = NodeHelper.create({
    */
   getVerseIndexForDay: function(dayOfYear, volumeList) {
     if (volumeList.length === 0) return 0;
-    // Use day of year to create variety, cycling through verses
-    const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-    return volumeCycle % volumeList.length;
+    
+    // Get which volume this day represents (0-3)
+    const volumeIndex = (dayOfYear - 1) % 4;
+    
+    // Use day of year with volume-specific multiplier for better distribution
+    // This creates variety across the entire year while ensuring each volume
+    // gets a different verse even within the same 4-day cycle
+    const baseIndex = (dayOfYear - 1) % volumeList.length;
+    
+    // Add volume-specific offset so each volume gets different verses
+    // Divides the verse list into 4 sections, one per volume
+    const volumeOffset = Math.floor((volumeList.length / 4) * volumeIndex);
+    
+    // Combine base index with volume offset, wrapping around if needed
+    return (baseIndex + volumeOffset) % volumeList.length;
   },
 
   /**
@@ -272,6 +288,8 @@ module.exports = NodeHelper.create({
 
   /**
    * Build API URL from verse reference
+   * DEPRECATED: This method is kept for backward compatibility.
+   * Module now uses local files - API calls are not used in normal operation.
    * Constructs the API endpoint URL using the configured base URL and endpoint pattern
    * Supports both custom endpoint patterns and default pattern
    * @function buildAPIUrl
@@ -300,6 +318,8 @@ module.exports = NodeHelper.create({
 
   /**
    * Fetch verse from API
+   * DEPRECATED: This method is kept for backward compatibility.
+   * Module now uses local files - API calls are not used in normal operation.
    * Makes HTTP/HTTPS request to the Open Scripture API
    * Handles both HTTP and HTTPS protocols automatically
    * Includes 30-second timeout to prevent hanging requests
@@ -358,6 +378,8 @@ module.exports = NodeHelper.create({
 
   /**
    * Parse API response to extract verse text and reference
+   * DEPRECATED: This method is kept for backward compatibility.
+   * Module now uses local files - API calls are not used in normal operation.
    * Handles multiple API response formats:
    * - Simple: { text: "...", reference: "..." }
    * - Nested: { verse: { text: "...", reference: "..." } }
@@ -413,6 +435,8 @@ module.exports = NodeHelper.create({
 
   /**
    * Fetch with retry logic (3 attempts, 5 second delay)
+   * DEPRECATED: This method is kept for backward compatibility.
+   * Module now uses local files - API calls are not used in normal operation.
    * Implements exponential retry strategy for handling transient API failures
    * Retries up to maxRetries times with delayMs milliseconds between attempts
    * Logs each attempt for debugging purposes
@@ -452,7 +476,7 @@ module.exports = NodeHelper.create({
    * Handle GET_VERSE request
    * Main handler for verse requests from the frontend module
    * Calculates current day of year, selects verse from local files, and sends result
-   * If verse text is not in local file, attempts to fetch from API (if configured)
+   * Note: API fallback code exists but is deprecated - module uses local files only
    * Handles errors gracefully and sends error notification to frontend
    * @function handleGetVerse
    * @async
@@ -469,6 +493,8 @@ module.exports = NodeHelper.create({
 
       console.log(`Day ${dayOfYear}: Selected verse: ${verseReference}`);
 
+      // Deprecated: API fallback (kept for backward compatibility)
+      // Module now uses local files - API calls are not used in normal operation
       // If verse text is not available locally, try to fetch from API (if configured)
       if (!verseText && this.apiBaseUrl) {
         try {

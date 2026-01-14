@@ -78,6 +78,9 @@ jobs:
         node -c node_helper.js
         node -c convert-lds-data.js
         node -c generate-verse-lists.js
+        echo "Checking CSS file exists..."
+        test -f MMM-DailyLDSVerse.css
+        echo "✓ CSS file present"
     
     - name: Verify JSON files
       run: |
@@ -106,6 +109,7 @@ jobs:
       run: |
         echo "Verifying module structure..."
         test -f MMM-DailyLDSVerse.js
+        test -f MMM-DailyLDSVerse.css
         test -f node_helper.js
         test -f package.json
         test -f README.md

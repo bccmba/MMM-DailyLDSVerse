@@ -83,10 +83,12 @@ test('Performance: Verse selection should be fast', () => {
   
   const start = Date.now();
   
-  // Simulate verse selection for multiple days
+  // Simulate verse selection for multiple days (new algorithm with volume offset)
   for (let day = 1; day <= 100; day++) {
-    const volumeCycle = Math.floor((day - 1) / 4);
-    const index = volumeCycle % mockList.length;
+    const volIndex = (day - 1) % 4;
+    const baseIndex = (day - 1) % mockList.length;
+    const volumeOffset = Math.floor((mockList.length / 4) * volIndex);
+    const index = (baseIndex + volumeOffset) % mockList.length;
     const verse = mockList[index];
     assert.ok(verse, `Day ${day} should have verse`);
   }
@@ -209,10 +211,12 @@ test('Performance: Repeated verse selections should be consistent', () => {
   const start = Date.now();
   const results = [];
   
-  // Select verses for 365 days
+  // Select verses for 365 days (new algorithm with volume offset)
   for (let day = 1; day <= 365; day++) {
-    const volumeCycle = Math.floor((day - 1) / 4);
-    const index = volumeCycle % mockList.length;
+    const volIndex = (day - 1) % 4;
+    const baseIndex = (day - 1) % mockList.length;
+    const volumeOffset = Math.floor((mockList.length / 4) * volIndex);
+    const index = (baseIndex + volumeOffset) % mockList.length;
     results.push(mockList[index]);
   }
   

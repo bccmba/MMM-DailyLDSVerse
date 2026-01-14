@@ -139,7 +139,8 @@ DOM structure and rendering:
 #### `api-research.test.js`
 API research script (utility, not unit test):
 - Tests potential API endpoints
-- Kept for reference only
+- **DEPRECATED**: Module now uses local files from LDS Documentation Project
+- Kept for reference only - not part of test suite
 
 #### `utils.test.js`
 Placeholder for utility function tests (if utils.js is created in future)

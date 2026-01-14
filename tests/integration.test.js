@@ -152,10 +152,12 @@ test('Integration: End-to-end verse selection for different days', () => {
     
     assert.ok(volumes.includes(volume), `Day ${dayOfYear} should select valid volume`);
     
-    // Simulate verse index calculation
+    // Simulate verse index calculation (new algorithm with volume offset)
     const mockList = Array(100).fill(0).map((_, i) => ({ reference: `Verse ${i}`, text: `Text ${i}` }));
-    const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-    const verseIndex = volumeCycle % mockList.length;
+    const volIndex = (dayOfYear - 1) % 4;
+    const baseIndex = (dayOfYear - 1) % mockList.length;
+    const volumeOffset = Math.floor((mockList.length / 4) * volIndex);
+    const verseIndex = (baseIndex + volumeOffset) % mockList.length;
     
     assert.ok(verseIndex >= 0 && verseIndex < mockList.length, `Day ${dayOfYear} should have valid verse index`);
   });

@@ -218,8 +218,10 @@ test('Integration: Complete verse selection flow', () => {
   assert.ok(volumes.includes(volume));
   
   const mockVolumeList = ['1 Nephi 1:1', '1 Nephi 1:2', '1 Nephi 3:7'];
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const verseIndex = volumeCycle % mockVolumeList.length;
+  const volIndex = (dayOfYear - 1) % 4;
+  const baseIndex = (dayOfYear - 1) % mockVolumeList.length;
+  const volumeOffset = Math.floor((mockVolumeList.length / 4) * volIndex);
+  const verseIndex = (baseIndex + volumeOffset) % mockVolumeList.length;
   const verseReference = mockVolumeList[verseIndex];
   
   assert.ok(verseReference);

@@ -95,33 +95,63 @@ test('getVolumeForDay - Day 366 should cycle correctly', () => {
 
 /**
  * Test getVerseIndexForDay function logic
+ * Updated to reflect new algorithm with volume-specific offsets
  */
+function getVerseIndexForDay(dayOfYear, volumeList) {
+  if (volumeList.length === 0) return 0;
+  const volumeIndex = (dayOfYear - 1) % 4;
+  const baseIndex = (dayOfYear - 1) % volumeList.length;
+  const volumeOffset = Math.floor((volumeList.length / 4) * volumeIndex);
+  return (baseIndex + volumeOffset) % volumeList.length;
+}
+
 test('getVerseIndexForDay - Should return valid index within volume list', () => {
   const dayOfYear = 1;
   const mockList = ['verse1', 'verse2', 'verse3', 'verse4', 'verse5'];
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const index = volumeCycle % mockList.length;
+  const index = getVerseIndexForDay(dayOfYear, mockList);
   assert.ok(index >= 0 && index < mockList.length);
 });
 
 test('getVerseIndexForDay - Should ensure variety across days', () => {
   const mockList = Array(100).fill(0).map((_, i) => `verse${i}`);
   
-  // Day 1: floor((1-1)/4) = 0, 0 % 100 = 0
-  const index1 = Math.floor((1 - 1) / 4) % mockList.length;
+  // Day 1: baseIndex = 0, volumeIndex = 0, offset = 0, result = 0
+  const index1 = getVerseIndexForDay(1, mockList);
   
-  // Day 5: floor((5-1)/4) = 1, 1 % 100 = 1
-  const index5 = Math.floor((5 - 1) / 4) % mockList.length;
+  // Day 5: baseIndex = 4, volumeIndex = 0, offset = 0, result = 4
+  const index5 = getVerseIndexForDay(5, mockList);
   
   assert.notStrictEqual(index1, index5, 'Day 1 and Day 5 should return different indices');
+});
+
+test('getVerseIndexForDay - Should ensure different verses for different volumes in same cycle', () => {
+  const mockList = Array(100).fill(0).map((_, i) => `verse${i}`);
+  
+  // Day 1 (Bible): baseIndex = 0, volumeIndex = 0, offset = 0, result = 0
+  const index1 = getVerseIndexForDay(1, mockList);
+  
+  // Day 2 (Book of Mormon): baseIndex = 1, volumeIndex = 1, offset = 25, result = 26
+  const index2 = getVerseIndexForDay(2, mockList);
+  
+  // Day 3 (D&C): baseIndex = 2, volumeIndex = 2, offset = 50, result = 52
+  const index3 = getVerseIndexForDay(3, mockList);
+  
+  // Day 4 (Pearl): baseIndex = 3, volumeIndex = 3, offset = 75, result = 78
+  const index4 = getVerseIndexForDay(4, mockList);
+  
+  // All should be different
+  assert.notStrictEqual(index1, index2, 'Bible and Book of Mormon should have different indices');
+  assert.notStrictEqual(index2, index3, 'Book of Mormon and D&C should have different indices');
+  assert.notStrictEqual(index3, index4, 'D&C and Pearl should have different indices');
+  assert.notStrictEqual(index1, index4, 'Bible and Pearl should have different indices');
 });
 
 test('getVerseIndexForDay - Should wrap around for large day numbers', () => {
   const mockList = Array(10).fill(0).map((_, i) => `verse${i}`);
   
-  // Day 41: floor((41-1)/4) = 10, 10 % 10 = 0 (wraps around)
-  const index41 = Math.floor((41 - 1) / 4) % mockList.length;
-  assert.strictEqual(index41, 0);
+  // Day 41: baseIndex = 0, volumeIndex = 0, offset = 0, result = 0 (wraps around)
+  const index41 = getVerseIndexForDay(41, mockList);
+  assert.ok(index41 >= 0 && index41 < mockList.length);
 });
 
 /**

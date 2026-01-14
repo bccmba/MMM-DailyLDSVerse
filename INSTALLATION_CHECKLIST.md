@@ -6,7 +6,7 @@ Use this checklist to ensure proper installation of MMM-DailyLDSVerse.
 
 - [ ] Magic Mirror² installed and running
 - [ ] Node.js installed (v14 or higher)
-- [ ] Internet connection (for API calls and verse list generation)
+- [ ] Internet connection (only needed for cloning the repository)
 
 ## Installation Steps
 
@@ -19,7 +19,7 @@ Use this checklist to ensure proper installation of MMM-DailyLDSVerse.
 
 - [ ] Clone the repository
   ```bash
-  git clone https://github.com/yourusername/MMM-DailyLDSVerse.git
+  git clone https://github.com/bccmba/MMM-DailyLDSVerse.git
   ```
 
 - [ ] Navigate to module directory
@@ -46,7 +46,12 @@ If you want to regenerate from latest data (usually not needed):
 - [ ] Download latest data from https://scriptures.nephi.org
 - [ ] Run conversion script:
   ```bash
-  node convert-lds-data.js <path-to-lds-scriptures-json.txt> verses/
+  node convert-lds-data.js <path-to-downloaded-file>/json/lds-scriptures-json.txt verses/
+  ```
+  
+  Example:
+  ```bash
+  node convert-lds-data.js ~/Downloads/lds-scriptures-json/json/lds-scriptures-json.txt verses/
   ```
 
 ### 4. Magic Mirror Configuration
@@ -100,9 +105,11 @@ If any step fails:
 
 - [ ] Test module over multiple days
 - [ ] Verify all four volumes display
-- [ ] Test error handling (disconnect internet)
+- [ ] Test error handling (remove a verse file temporarily)
 - [ ] Verify midnight updates work
 - [ ] Test custom update interval (if configured)
+- [ ] Verify header displays correctly (if configured)
+- [ ] Check that CSS styling is applied correctly
 
 ## Success Criteria
 
@@ -114,8 +121,9 @@ If any step fails:
 
 ## Notes
 
-- First installation may take time to generate verse lists
-- API research must be completed before verse list generation
-- Module requires internet connection for API calls
-- Verse lists can be regenerated anytime by running the script again
+- Verse list files are pre-generated and included - no generation needed!
+- Module uses local files - no internet connection required for operation
+- Verse lists can be regenerated anytime by running the conversion script
+- CSS file is automatically loaded by Magic Mirror
+- Module works immediately after installation
 

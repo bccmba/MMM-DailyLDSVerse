@@ -6,8 +6,7 @@ This guide provides a comprehensive checklist for manually testing the module in
 
 1. Magic Mirror installed and running
 2. Module installed in `modules/` directory
-3. Verse list files generated in `verses/` directory
-4. API configuration completed (if using API)
+3. Verse list files present in `verses/` directory (pre-generated and included)
 
 ## Functional Testing Checklist
 
@@ -88,7 +87,7 @@ This guide provides a comprehensive checklist for manually testing the module in
 
 - [ ] **Error State**
   - [ ] "Unable to load scripture verse" appears on error
-  - [ ] Error state appears when API fails
+  - [ ] Error state appears when verse list files are missing or invalid
   - [ ] Error state clears on successful fetch
 
 - [ ] **Success State**
@@ -137,24 +136,6 @@ This guide provides a comprehensive checklist for manually testing the module in
 
 ## Error Handling Testing
 
-### API Errors
-
-- [ ] **Network Error**
-  - [ ] Disconnect internet
-  - [ ] Module shows error message
-  - [ ] Module retries (check logs)
-  - [ ] Module recovers when internet restored
-
-- [ ] **API Timeout**
-  - [ ] Simulate slow network
-  - [ ] Module handles timeout
-  - [ ] Module retries correctly
-
-- [ ] **API 404 Error**
-  - [ ] Test with invalid verse reference
-  - [ ] Module handles 404 error
-  - [ ] Error message displays
-
 ### File Errors
 
 - [ ] **Missing Verse List Files**
@@ -197,15 +178,15 @@ This guide provides a comprehensive checklist for manually testing the module in
   1. Module starts
   2. Requests verse from node_helper
   3. Node helper calculates verse
-  4. Node helper fetches from API
+  4. Node helper reads from local verse list files
   5. Verse displays in module
   6. Update scheduled for midnight
 
 - [ ] **Error Recovery Flow**
-  1. API error occurs
+  1. File error occurs (missing or invalid verse list)
   2. Error message displays
   3. Next update attempts
-  4. Verse loads successfully
+  4. Verse loads successfully when file is restored
   5. Error clears
 
 ## Performance Testing
@@ -283,8 +264,10 @@ Notes:
 - Verify updateInterval configuration
 - Check Magic Mirror logs
 
-### API Errors
-- Not applicable - module uses local data files
+### File Errors
+- Verify verse list files exist
+- Check file permissions
+- Validate JSON format
 
 ### File Errors
 - Verify verse list files exist

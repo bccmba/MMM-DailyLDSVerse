@@ -13,10 +13,10 @@
     "test:api": "node tests/api-research.test.js",
     "convert": "node convert-lds-data.js"
   },
-  "author": "",
+  "author": "bccmba",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/MMM-DailyLDSVerse.git"
+    "url": "https://github.com/bccmba/MMM-DailyLDSVerse.git"
   },
   "license": "MIT",
   "dependencies": {},

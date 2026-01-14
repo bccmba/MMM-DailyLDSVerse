@@ -305,8 +305,10 @@ test('Edge case: Empty verse list - Should not crash', () => {
     if (volumeList.length === 0) {
       throw new Error(`No verses available for volume`);
     }
-    const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-    const index = volumeCycle % volumeList.length;
+    const volIndex = (dayOfYear - 1) % 4;
+    const baseIndex = (dayOfYear - 1) % volumeList.length;
+    const volumeOffset = Math.floor((volumeList.length / 4) * volIndex);
+    const index = (baseIndex + volumeOffset) % volumeList.length;
     const verse = volumeList[index];
   } catch (error) {
     // Should catch and handle error

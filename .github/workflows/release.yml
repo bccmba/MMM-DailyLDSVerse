@@ -53,6 +53,14 @@ jobs:
         echo "Verse list file sizes:"
         ls -lh verses/*.json
     
+    - name: Verify module files
+      run: |
+        echo "Verifying required module files..."
+        test -f MMM-DailyLDSVerse.js
+        test -f MMM-DailyLDSVerse.css
+        test -f node_helper.js
+        echo "✓ All module files present"
+    
     - name: Verify documentation
       run: |
         test -f README.md

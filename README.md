@@ -37,6 +37,8 @@ A Magic Mirror module that displays a daily scripture verse from LDS scriptures 
 
 6. Restart Magic Mirror to load the module.
 
+**Note**: The module's CSS file (`MMM-DailyLDSVerse.css`) is automatically loaded by Magic Mirror - no additional configuration needed.
+
 ## Verse Lists
 
 **Good News**: Verse list files are **pre-generated and included** in this repository! You don't need to generate them - they're ready to use in the `verses/` directory.
@@ -176,6 +178,8 @@ The script will overwrite existing files with fresh data.
 }
 ```
 
+**Note**: The header uses Magic Mirror's standard `<header>` element styling, which automatically applies uppercase text transformation and a border-bottom line. This matches the styling convention used by other Magic Mirror modules. If you configure `header: "Verse of the day"`, it will display as "VERSE OF THE DAY" with a line underneath.
+
 #### Custom Update Interval
 ```javascript
 {
@@ -219,6 +223,25 @@ The module supports all standard Magic Mirror positions:
 - `fullscreen_above`, `fullscreen_below`
 
 See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/configuration.html#position) for more details.
+
+## CSS Customization
+
+The module includes a CSS file (`MMM-DailyLDSVerse.css`) that is automatically loaded by Magic Mirror. The default styling provides:
+
+- Proper width constraints for all positions
+- Text alignment based on module position
+- Verse text and reference styling
+- Loading and error state styling
+
+For advanced customization, you can edit `MMM-DailyLDSVerse.css` directly. The module uses standard CSS classes:
+
+- `.MMM-DailyLDSVerse` - Main wrapper
+- `.verse-text` - Verse text content
+- `.verse-reference` - Verse reference (e.g., "1 Nephi 3:7")
+- `.loading` - Loading state message
+- `.error` - Error state message
+
+The header uses Magic Mirror's standard `<header>` element, which inherits styling from Magic Mirror's main CSS. To customize header styling, you would need to modify Magic Mirror's main CSS file or use custom CSS in your Magic Mirror configuration.
 
 ## Troubleshooting
 
@@ -272,8 +295,27 @@ See the [Magic Mirror documentation](https://docs.magicmirror.builders/modules/c
 - **Automatic Updates**: Updates at midnight (default) or at custom intervals
 - **Error Handling**: Graceful error handling for missing files and invalid data
 - **Customizable Header**: Display a custom header above the verse (or hide it)
+- **Standard Header Styling**: Uses Magic Mirror's `<header>` element for consistent styling with other modules (uppercase text, border-bottom line)
 - **Leap Year Support**: Handles leap years correctly (366 days)
 - **Minimal Configuration**: Works out of the box with sensible defaults
+
+## Example Display
+
+The module displays verses in the following format:
+
+```
+VERSE OF THE DAY
+────────────────
+And it came to pass that I, Nephi, said unto my father: 
+I will go and do the things which the Lord hath commanded, 
+for I know that the Lord giveth no commandments unto the 
+children of men, save he shall prepare a way for them that 
+they may accomplish the thing which he commandeth them.
+
+1 Nephi 3:7
+```
+
+The header text is automatically uppercased by Magic Mirror, and a border line appears below it for visual separation.
 
 ## How It Works
 
@@ -347,6 +389,7 @@ npm run test:dom           # DOM rendering tests
 ```
 MMM-DailyLDSVerse/
 ├── MMM-DailyLDSVerse.js      # Main module (frontend)
+├── MMM-DailyLDSVerse.css     # Module stylesheet
 ├── node_helper.js             # Node helper (backend)
 ├── generate-verse-lists.js    # Verse list generation script (API-based, deprecated)
 ├── convert-lds-data.js        # LDS Documentation Project data converter (recommended)
@@ -354,7 +397,7 @@ MMM-DailyLDSVerse/
 ├── README.md                  # This file
 ├── config.example.js          # Configuration examples
 ├── tests/                     # Test files
-└── verses/                    # Verse list JSON files (generated)
+└── verses/                    # Verse list JSON files (pre-generated)
 ```
 
 ## License
@@ -412,6 +455,8 @@ For issues, questions, or contributions, please open an issue on the GitHub repo
 - Support for all four LDS scripture volumes
 - Daily verse rotation
 - Automatic midnight updates
-- Error handling with retry logic
+- Error handling with graceful fallbacks
+- Customizable header with Magic Mirror standard styling
 - Comprehensive test coverage
+- CI/CD pipeline integration
 
