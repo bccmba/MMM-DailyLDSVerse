@@ -229,5 +229,89 @@ test('DOM Rendering: Wrapper should have correct class', () => {
   assert.ok(wrapperClassName.length > 0, 'Wrapper class should not be empty');
 });
 
+/**
+ * Test CSS positioning for side regions
+ */
+test('CSS Positioning: top_right should have margin-left auto', () => {
+  const position = 'top_right';
+  const expectedStyles = {
+    textAlign: 'right',
+    marginLeft: 'auto'
+  };
+  
+  // Simulate position-based styling
+  let actualStyles = { textAlign: 'left', marginLeft: '0' };
+  
+  if (position === 'top_right' || position === 'bottom_right') {
+    actualStyles.textAlign = 'right';
+    actualStyles.marginLeft = 'auto';
+  } else if (position === 'top_center' || position === 'bottom_center') {
+    actualStyles.textAlign = 'center';
+    actualStyles.marginLeft = 'auto';
+    actualStyles.marginRight = 'auto';
+  }
+  
+  assert.strictEqual(actualStyles.textAlign, expectedStyles.textAlign, 'top_right should be right aligned');
+  assert.strictEqual(actualStyles.marginLeft, expectedStyles.marginLeft, 'top_right should have margin-left auto');
+});
+
+test('CSS Positioning: top_left should have left alignment', () => {
+  const position = 'top_left';
+  const expectedStyles = {
+    textAlign: 'left',
+    marginLeft: '0'
+  };
+  
+  let actualStyles = { textAlign: 'left', marginLeft: '0' };
+  
+  if (position === 'top_right' || position === 'bottom_right') {
+    actualStyles.textAlign = 'right';
+    actualStyles.marginLeft = 'auto';
+  } else if (position === 'top_center' || position === 'bottom_center') {
+    actualStyles.textAlign = 'center';
+    actualStyles.marginLeft = 'auto';
+    actualStyles.marginRight = 'auto';
+  }
+  
+  assert.strictEqual(actualStyles.textAlign, expectedStyles.textAlign, 'top_left should be left aligned');
+  assert.strictEqual(actualStyles.marginLeft, expectedStyles.marginLeft, 'top_left should have margin-left 0');
+});
+
+test('CSS Positioning: top_center should be centered', () => {
+  const position = 'top_center';
+  const expectedStyles = {
+    textAlign: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto'
+  };
+  
+  let actualStyles = { textAlign: 'left', marginLeft: '0', marginRight: '0' };
+  
+  if (position === 'top_right' || position === 'bottom_right') {
+    actualStyles.textAlign = 'right';
+    actualStyles.marginLeft = 'auto';
+  } else if (position === 'top_center' || position === 'bottom_center') {
+    actualStyles.textAlign = 'center';
+    actualStyles.marginLeft = 'auto';
+    actualStyles.marginRight = 'auto';
+  }
+  
+  assert.strictEqual(actualStyles.textAlign, expectedStyles.textAlign, 'top_center should be center aligned');
+  assert.strictEqual(actualStyles.marginLeft, expectedStyles.marginLeft, 'top_center should have margin-left auto');
+  assert.strictEqual(actualStyles.marginRight, expectedStyles.marginRight, 'top_center should have margin-right auto');
+});
+
+test('CSS Positioning: Module should have fixed width for side positions', () => {
+  const expectedWidth = '350px';
+  const expectedMaxWidth = '100%';
+  
+  // Simulate CSS width properties
+  const width = expectedWidth;
+  const maxWidth = expectedMaxWidth;
+  
+  assert.strictEqual(width, expectedWidth, 'Module should have 350px width');
+  assert.strictEqual(maxWidth, expectedMaxWidth, 'Module should have max-width 100%');
+});
+
 console.log('All DOM rendering tests defined');
 

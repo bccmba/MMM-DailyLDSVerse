@@ -6,7 +6,7 @@
 
 .MMM-DailyLDSVerse {
   display: block;
-  width: auto;
+  width: 350px;
   max-width: 100%;
   text-align: left;
   line-height: 1.4;
@@ -16,6 +16,7 @@
 .region.top_right .MMM-DailyLDSVerse,
 .region.bottom_right .MMM-DailyLDSVerse {
   text-align: right;
+  margin-left: auto;
 }
 
 /* Center-aligned positions */
@@ -23,6 +24,8 @@
 .region.middle_center .MMM-DailyLDSVerse,
 .region.bottom_center .MMM-DailyLDSVerse {
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Left-aligned positions */
