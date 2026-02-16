@@ -9,6 +9,12 @@ Module.register("MMM-DailyLDSVerse", {
   // Default module config
   defaults: {
     updateInterval: 86400000, // 24 hours in milliseconds
+    header: "Verse of the day", // Header text to display above the verse
+  },
+
+  // Load CSS stylesheet
+  getStyles: function() {
+    return ["MMM-DailyLDSVerse.css"];
   },
 
   // Module state
@@ -110,8 +116,17 @@ Module.register("MMM-DailyLDSVerse", {
    */
   socketNotificationReceived: function(notification, payload) {
     if (notification === "VERSE_RESULT") {
-      this.verseText = payload.text;
-      this.verseReference = payload.reference;
+      // Validate payload exists and has required properties
+      if (!payload) {
+        Log.error("VERSE_RESULT notification received without payload");
+        this.isLoading = false;
+        this.hasError = true;
+        this.updateDom();
+        return;
+      }
+      
+      this.verseText = payload.text || "";
+      this.verseReference = payload.reference || "Unknown";
       this.isLoading = false;
       this.hasError = false;
       this.lastUpdateDate = new Date();
@@ -120,7 +135,8 @@ Module.register("MMM-DailyLDSVerse", {
     } else if (notification === "VERSE_ERROR") {
       this.isLoading = false;
       this.hasError = true;
-      Log.error(`Error loading verse: ${payload.message || "Unknown error"}`);
+      const errorMessage = payload?.message || "Unknown error";
+      Log.error(`Error loading verse: ${errorMessage}`);
       this.updateDom();
     }
   },
@@ -137,15 +153,22 @@ Module.register("MMM-DailyLDSVerse", {
     const wrapper = document.createElement("div");
     wrapper.className = "MMM-DailyLDSVerse";
 
+    // Add header if configured (using Magic Mirror's standard header element)
+    if (this.config.header && this.config.header.length > 0) {
+      const header = document.createElement("header");
+      header.textContent = this.config.header;
+      wrapper.appendChild(header);
+    }
+
     if (this.isLoading) {
       const loading = document.createElement("div");
       loading.className = "loading";
-      loading.innerHTML = "Loading verse...";
+      loading.textContent = "Loading verse...";
       wrapper.appendChild(loading);
     } else if (this.hasError) {
       const error = document.createElement("div");
       error.className = "error";
-      error.innerHTML = "Unable to load scripture verse";
+      error.textContent = "Unable to load scripture verse";
       wrapper.appendChild(error);
     } else if (this.verseText && this.verseReference) {
       const verseDiv = document.createElement("div");
@@ -163,7 +186,7 @@ Module.register("MMM-DailyLDSVerse", {
       // Fallback: show loading if no data
       const loading = document.createElement("div");
       loading.className = "loading";
-      loading.innerHTML = "Loading verse...";
+      loading.textContent = "Loading verse...";
       wrapper.appendChild(loading);
     }
 

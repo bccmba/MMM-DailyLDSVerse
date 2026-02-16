@@ -1,7 +1,13 @@
 /**
  * API Research Test Script
  * 
- * This script tests the Open Scripture API to understand:
+ * NOTE: This is not a unit test - it's a research/utility script.
+ * The module now uses local data files from the LDS Documentation Project,
+ * so API research is no longer needed for normal operation.
+ * 
+ * This script is kept for reference but is not part of the test suite.
+ * 
+ * This script tests potential API endpoints to understand:
  * - Base URL and endpoint structure
  * - Request/response format
  * - Supported volumes (Bible, Book of Mormon, D&C, Pearl of Great Price)

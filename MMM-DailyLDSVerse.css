@@ -1,0 +1,67 @@
+/**
+ * Styles for MMM-DailyLDSVerse module
+ * Ensures proper width constraints and alignment for all positions
+ * Matches Magic Mirror module conventions
+ */
+
+.MMM-DailyLDSVerse {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  text-align: left;
+  line-height: 1.4;
+}
+
+/* Right-aligned positions */
+.region.top_right .MMM-DailyLDSVerse,
+.region.bottom_right .MMM-DailyLDSVerse {
+  text-align: right;
+}
+
+/* Center-aligned positions */
+.region.top_center .MMM-DailyLDSVerse,
+.region.middle_center .MMM-DailyLDSVerse,
+.region.bottom_center .MMM-DailyLDSVerse {
+  text-align: center;
+}
+
+/* Left-aligned positions */
+.region.top_left .MMM-DailyLDSVerse,
+.region.bottom_left .MMM-DailyLDSVerse {
+  text-align: left;
+}
+
+/* Header uses Magic Mirror's standard header styling (inherits from main.css) */
+/* No custom header styling needed - Magic Mirror's header styles apply automatically */
+
+/* Verse text styling */
+.MMM-DailyLDSVerse .verse-text {
+  font-size: 1em;
+  margin-bottom: 0.5em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Verse reference styling */
+.MMM-DailyLDSVerse .verse-reference {
+  font-size: 0.9em;
+  font-style: italic;
+  opacity: 0.8;
+  margin-top: 0.3em;
+  max-width: 100%;
+}
+
+/* Loading state */
+.MMM-DailyLDSVerse .loading {
+  font-size: 0.9em;
+  opacity: 0.7;
+}
+
+/* Error state */
+.MMM-DailyLDSVerse .error {
+  font-size: 0.9em;
+  color: #ff6b6b;
+  opacity: 0.8;
+}
+

@@ -1,13 +1,17 @@
 /**
  * Unit tests for utility functions
- * These tests will be used throughout development
+ * 
+ * NOTE: This test file is currently not applicable as there is no utils.js file.
+ * The utility functions are implemented directly in node_helper.js and MMM-DailyLDSVerse.js.
+ * 
+ * This file is kept for potential future refactoring if utility functions are extracted.
  */
 
 const { test } = require('node:test');
 const assert = require('node:assert');
 
-// Import utility functions (to be created)
-// const { getDayOfYear, getVolumeForDay, getVerseIndexForDay } = require('../utils');
+// Utility functions are currently in node_helper.js and MMM-DailyLDSVerse.js
+// If a utils.js file is created in the future, these tests can be implemented
 
 /**
  * Test getDayOfYear function

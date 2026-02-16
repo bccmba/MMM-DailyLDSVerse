@@ -1,6 +1,7 @@
 /**
  * Comprehensive unit tests for node_helper.js
- * Tests all core functionality including API integration
+ * Tests all core functionality including local file operations
+ * Note: API integration code exists but is deprecated - module uses local files
  */
 
 const { test } = require('node:test');
@@ -11,13 +12,24 @@ const path = require('path');
 // Mock NodeHelper for testing
 const mockNodeHelper = {
   verseLists: {
-    bible: ['Genesis 1:1', 'Genesis 1:2', 'John 3:16'],
-    bookOfMormon: ['1 Nephi 1:1', '1 Nephi 3:7', '2 Nephi 2:25'],
-    doctrineAndCovenants: ['D&C 1:1', 'D&C 121:7'],
-    pearlOfGreatPrice: ['Moses 1:1', 'Abraham 3:22']
-  },
-  apiBaseUrl: 'https://api.openscriptureapi.org',
-  apiEndpointPattern: null
+    bible: [
+      { reference: 'Genesis 1:1', text: 'In the beginning...' },
+      { reference: 'John 3:16', text: 'For God so loved...' }
+    ],
+    bookOfMormon: [
+      { reference: '1 Nephi 1:1', text: 'I, Nephi...' },
+      { reference: '1 Nephi 3:7', text: 'And it came to pass...' },
+      { reference: '2 Nephi 2:25', text: 'Adam fell that men might be...' }
+    ],
+    doctrineAndCovenants: [
+      { reference: 'D&C 1:1', text: 'Hearken...' },
+      { reference: 'D&C 121:7', text: 'My son, peace be unto...' }
+    ],
+    pearlOfGreatPrice: [
+      { reference: 'Moses 1:1', text: 'The words of God...' },
+      { reference: 'Abraham 3:22', text: 'Now the Lord had shown...' }
+    ]
+  }
 };
 
 /**
@@ -93,49 +105,86 @@ test('getVolumeForDay - Day 366 should cycle correctly', () => {
 
 /**
  * Test getVerseIndexForDay function
+ * Updated to use seeded random for randomized verse selection
  */
+function seededRandom(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getVerseIndexForDay(dayOfYear, volumeList) {
+  if (volumeList.length === 0) return 0;
+  
+  const volumeIndex = (dayOfYear - 1) % 4;
+  const volumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
+  const volumeName = volumes[volumeIndex];
+  
+  let seed = dayOfYear * 1000 + volumeName.length;
+  for (let i = 0; i < volumeName.length; i++) {
+    seed += volumeName.charCodeAt(i) * (i + 1);
+  }
+  
+  const random = seededRandom(seed);
+  return Math.floor(random() * volumeList.length);
+}
+
 test('getVerseIndexForDay - Should return valid index within volume list', () => {
   const dayOfYear = 1;
   const volumeList = mockNodeHelper.verseLists.bible;
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const index = volumeCycle % volumeList.length;
+  const index = getVerseIndexForDay(dayOfYear, volumeList);
   assert.ok(index >= 0 && index < volumeList.length);
 });
 
 test('getVerseIndexForDay - Should ensure variety across days', () => {
   const volumeList = mockNodeHelper.verseLists.bookOfMormon;
   
-  // Day 1: floor((1-1)/4) = 0, 0 % 3 = 0
-  const index1 = Math.floor((1 - 1) / 4) % volumeList.length;
+  const indices = [];
+  for (let day = 1; day <= 30; day++) {
+    indices.push(getVerseIndexForDay(day, volumeList));
+  }
   
-  // Day 5: floor((5-1)/4) = 1, 1 % 3 = 1
-  const index5 = Math.floor((5 - 1) / 4) % volumeList.length;
+  const uniqueIndices = new Set(indices);
+  assert.ok(uniqueIndices.size > 1, 'Should have variety across multiple days');
+});
+
+test('getVerseIndexForDay - Should ensure different verses for different volumes in same cycle', () => {
+  const volumeList = Array(100).fill(0).map((_, i) => ({ reference: `verse${i}`, text: `text${i}` }));
   
-  assert.notStrictEqual(index1, index5, 'Day 1 and Day 5 should return different indices');
+  const index1 = getVerseIndexForDay(1, volumeList);
+  const index2 = getVerseIndexForDay(2, volumeList);
+  const index3 = getVerseIndexForDay(3, volumeList);
+  const index4 = getVerseIndexForDay(4, volumeList);
+  
+  assert.notStrictEqual(index1, index2, 'Bible and Book of Mormon should have different indices');
+  assert.notStrictEqual(index2, index3, 'Book of Mormon and D&C should have different indices');
+  assert.notStrictEqual(index3, index4, 'D&C and Pearl should have different indices');
 });
 
 test('getVerseIndexForDay - Should wrap around for large day numbers', () => {
   const volumeList = mockNodeHelper.verseLists.bible;
   
-  // Day 13: floor((13-1)/4) = 3, 3 % 3 = 0 (wraps around)
-  const index13 = Math.floor((13 - 1) / 4) % volumeList.length;
-  assert.strictEqual(index13, 0);
+  const index13 = getVerseIndexForDay(13, volumeList);
+  assert.ok(index13 >= 0 && index13 < volumeList.length);
 });
 
 /**
  * Test getVerseForDay function logic
  */
 test('getVerseForDay - Should return verse from correct volume', () => {
-  const dayOfYear = 1; // Should be bible
+  const dayOfYear = 1;
   const volume = 'bible';
   const volumeList = mockNodeHelper.verseLists[volume];
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const verseIndex = volumeCycle % volumeList.length;
+  const verseIndex = getVerseIndexForDay(dayOfYear, volumeList);
   const verse = volumeList[verseIndex];
   
   assert.ok(verse, 'Should return a verse');
-  assert.ok(typeof verse === 'string', 'Verse should be a string');
-  assert.ok(verse.includes(':'), 'Verse should contain chapter:verse format');
+  assert.ok(typeof verse === 'object', 'Verse should be an object');
+  assert.ok(verse.reference, 'Verse should have reference');
+  assert.ok(verse.reference.includes(':'), 'Reference should contain chapter:verse format');
 });
 
 test('getVerseForDay - Should throw error for empty volume list', () => {
@@ -196,94 +245,64 @@ test('parseVerseReference - Should handle verse range', () => {
 });
 
 /**
- * Test buildAPIUrl function logic
+ * Test getVerseText function (handles both string and object formats)
  */
-test('buildAPIUrl - Should build URL with default pattern', () => {
-  const verseReference = '1 Nephi 3:7';
-  const match = verseReference.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
-  const book = match[1].trim();
-  const chapter = parseInt(match[2], 10);
-  const verse = parseInt(match[3], 10);
+test('getVerseText - Should extract text from object format', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
   
-  const baseUrl = 'https://api.openscriptureapi.org';
-  const url = `${baseUrl}/verses/${encodeURIComponent(book)}/${chapter}/${verse}`;
-  
-  assert.strictEqual(url, 'https://api.openscriptureapi.org/verses/1%20Nephi/3/7');
-});
-
-test('buildAPIUrl - Should build URL with custom pattern', () => {
-  const verseReference = 'John 3:16';
-  const match = verseReference.match(/^(.+?)\s+(\d+):(\d+)(?:-(\d+))?$/);
-  const book = match[1].trim();
-  const chapter = parseInt(match[2], 10);
-  const verse = parseInt(match[3], 10);
-  
-  const baseUrl = 'https://api.openscriptureapi.org';
-  const pattern = '{book}/{chapter}/{verse}';
-  const url = `${baseUrl}/${pattern}`
-    .replace('{book}', encodeURIComponent(book))
-    .replace('{chapter}', chapter)
-    .replace('{verse}', verse);
-  
-  assert.strictEqual(url, 'https://api.openscriptureapi.org/John/3/16');
-});
-
-/**
- * Test parseAPIResponse function
- */
-test('parseAPIResponse - Should parse simple format', () => {
-  const apiResponse = { text: 'And it came to pass...', reference: '1 Nephi 3:7' };
-  const verseReference = '1 Nephi 3:7';
-  
-  let text = apiResponse.text || null;
-  let reference = verseReference;
-  
-  if (apiResponse.reference) {
-    reference = apiResponse.reference;
+  let text = '';
+  if (typeof verse === 'string') {
+    text = '';
+  } else if (verse && typeof verse === 'object') {
+    text = verse.text || '';
   }
   
   assert.strictEqual(text, 'And it came to pass...');
+});
+
+test('getVerseText - Should return empty string for string format', () => {
+  const verse = '1 Nephi 3:7';
+  
+  let text = '';
+  if (typeof verse === 'string') {
+    text = '';
+  } else if (verse && typeof verse === 'object') {
+    text = verse.text || '';
+  }
+  
+  assert.strictEqual(text, '');
+});
+
+test('getVerseReference - Should extract reference from object format', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
+  
+  let reference = '';
+  if (typeof verse === 'string') {
+    reference = verse;
+  } else if (verse && typeof verse === 'object') {
+    reference = verse.reference || '';
+  }
+  
   assert.strictEqual(reference, '1 Nephi 3:7');
 });
 
-test('parseAPIResponse - Should parse nested format', () => {
-  const apiResponse = {
-    verse: {
-      text: 'For God so loved the world...',
-      reference: 'John 3:16'
-    }
-  };
-  const verseReference = 'John 3:16';
+test('getVerseReference - Should return string directly', () => {
+  const verse = '1 Nephi 3:7';
   
-  let text = null;
-  if (apiResponse.verse && apiResponse.verse.text) {
-    text = apiResponse.verse.text;
+  let reference = '';
+  if (typeof verse === 'string') {
+    reference = verse;
+  } else if (verse && typeof verse === 'object') {
+    reference = verse.reference || '';
   }
   
-  let reference = verseReference;
-  if (apiResponse.verse && apiResponse.verse.reference) {
-    reference = apiResponse.verse.reference;
-  }
-  
-  assert.strictEqual(text, 'For God so loved the world...');
-  assert.strictEqual(reference, 'John 3:16');
-});
-
-test('parseAPIResponse - Should handle data wrapper format', () => {
-  const apiResponse = {
-    data: {
-      text: 'I, Nephi, having been born...',
-      reference: '1 Nephi 1:1'
-    }
-  };
-  const verseReference = '1 Nephi 1:1';
-  
-  let text = null;
-  if (apiResponse.data && apiResponse.data.text) {
-    text = apiResponse.data.text;
-  }
-  
-  assert.strictEqual(text, 'I, Nephi, having been born...');
+  assert.strictEqual(reference, '1 Nephi 3:7');
 });
 
 /**
@@ -319,69 +338,29 @@ test('loadVerseLists - Should handle missing files gracefully', () => {
 });
 
 /**
- * Test retry logic
+ * Test verse data format handling
  */
-test('fetchWithRetry - Should retry on failure', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  const delayMs = 100; // Short delay for testing
+test('Verse data - Should handle object format with text', () => {
+  const verse = {
+    reference: '1 Nephi 3:7',
+    text: 'And it came to pass...'
+  };
   
-  async function mockFetch() {
-    attemptCount++;
-    if (attemptCount < maxRetries) {
-      throw new Error('Simulated failure');
-    }
-    return { text: 'Success', reference: '1 Nephi 3:7' };
-  }
+  const reference = typeof verse === 'string' ? verse : (verse.reference || '');
+  const text = typeof verse === 'string' ? '' : (verse.text || '');
   
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        const result = await fetchFn();
-        return result;
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  const result = await fetchWithRetry(mockFetch, maxRetries, delayMs);
-  
-  assert.strictEqual(attemptCount, maxRetries, 'Should retry until success');
-  assert.strictEqual(result.text, 'Success');
+  assert.strictEqual(reference, '1 Nephi 3:7');
+  assert.strictEqual(text, 'And it came to pass...');
 });
 
-test('fetchWithRetry - Should throw after all retries fail', async () => {
-  let attemptCount = 0;
-  const maxRetries = 3;
-  const delayMs = 50;
+test('Verse data - Should handle string format', () => {
+  const verse = '1 Nephi 3:7';
   
-  async function mockFetch() {
-    attemptCount++;
-    throw new Error('Always fails');
-  }
+  const reference = typeof verse === 'string' ? verse : (verse.reference || '');
+  const text = typeof verse === 'string' ? '' : (verse.text || '');
   
-  async function fetchWithRetry(fetchFn, maxRetries, delayMs) {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        return await fetchFn();
-      } catch (error) {
-        if (attempt === maxRetries) {
-          throw error;
-        }
-        await new Promise(resolve => setTimeout(resolve, delayMs));
-      }
-    }
-  }
-  
-  await assert.rejects(async () => {
-    await fetchWithRetry(mockFetch, maxRetries, delayMs);
-  }, /Always fails/);
-  
-  assert.strictEqual(attemptCount, maxRetries, 'Should attempt all retries');
+  assert.strictEqual(reference, '1 Nephi 3:7');
+  assert.strictEqual(text, '');
 });
 
 console.log('All node_helper comprehensive tests defined');

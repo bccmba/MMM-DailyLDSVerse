@@ -95,33 +95,71 @@ test('getVolumeForDay - Day 366 should cycle correctly', () => {
 
 /**
  * Test getVerseIndexForDay function logic
+ * Updated to use seeded random for randomized verse selection
  */
+function seededRandom(seed) {
+  return function() {
+    let t = seed += 0x6D2B79F5;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function getVerseIndexForDay(dayOfYear, volumeList) {
+  if (volumeList.length === 0) return 0;
+  
+  const volumeIndex = (dayOfYear - 1) % 4;
+  const volumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
+  const volumeName = volumes[volumeIndex];
+  
+  let seed = dayOfYear * 1000 + volumeName.length;
+  for (let i = 0; i < volumeName.length; i++) {
+    seed += volumeName.charCodeAt(i) * (i + 1);
+  }
+  
+  const random = seededRandom(seed);
+  return Math.floor(random() * volumeList.length);
+}
+
 test('getVerseIndexForDay - Should return valid index within volume list', () => {
   const dayOfYear = 1;
   const mockList = ['verse1', 'verse2', 'verse3', 'verse4', 'verse5'];
-  const volumeCycle = Math.floor((dayOfYear - 1) / 4);
-  const index = volumeCycle % mockList.length;
+  const index = getVerseIndexForDay(dayOfYear, mockList);
   assert.ok(index >= 0 && index < mockList.length);
 });
 
 test('getVerseIndexForDay - Should ensure variety across days', () => {
   const mockList = Array(100).fill(0).map((_, i) => `verse${i}`);
   
-  // Day 1: floor((1-1)/4) = 0, 0 % 100 = 0
-  const index1 = Math.floor((1 - 1) / 4) % mockList.length;
+  const indices = [];
+  for (let day = 1; day <= 30; day++) {
+    indices.push(getVerseIndexForDay(day, mockList));
+  }
   
-  // Day 5: floor((5-1)/4) = 1, 1 % 100 = 1
-  const index5 = Math.floor((5 - 1) / 4) % mockList.length;
+  const uniqueIndices = new Set(indices);
+  assert.ok(uniqueIndices.size > 1, 'Should have variety across multiple days');
+});
+
+test('getVerseIndexForDay - Should ensure different verses for different volumes in same cycle', () => {
+  const mockList = Array(100).fill(0).map((_, i) => `verse${i}`);
   
-  assert.notStrictEqual(index1, index5, 'Day 1 and Day 5 should return different indices');
+  const index1 = getVerseIndexForDay(1, mockList);
+  const index2 = getVerseIndexForDay(2, mockList);
+  const index3 = getVerseIndexForDay(3, mockList);
+  const index4 = getVerseIndexForDay(4, mockList);
+  
+  assert.notStrictEqual(index1, index2, 'Bible and Book of Mormon should have different indices');
+  assert.notStrictEqual(index2, index3, 'Book of Mormon and D&C should have different indices');
+  assert.notStrictEqual(index3, index4, 'D&C and Pearl should have different indices');
+  assert.notStrictEqual(index1, index4, 'Bible and Pearl should have different indices');
 });
 
 test('getVerseIndexForDay - Should wrap around for large day numbers', () => {
   const mockList = Array(10).fill(0).map((_, i) => `verse${i}`);
   
-  // Day 41: floor((41-1)/4) = 10, 10 % 10 = 0 (wraps around)
-  const index41 = Math.floor((41 - 1) / 4) % mockList.length;
-  assert.strictEqual(index41, 0);
+  const index41 = getVerseIndexForDay(41, mockList);
+  assert.ok(index41 >= 0 && index41 < mockList.length);
 });
 
 /**

@@ -211,7 +211,7 @@ test('DOM structure - Verse state should have verse-text and verse-reference', (
   const verseReference = '1 Nephi 3:7';
   
   const hasVerse = !isLoading && !hasError && verseText && verseReference;
-  assert.strictEqual(hasVerse, true);
+  assert.ok(hasVerse, 'Should have verse data when not loading and no error');
 });
 
 test('DOM structure - Fallback to loading if no data', () => {
@@ -222,6 +222,28 @@ test('DOM structure - Fallback to loading if no data', () => {
   
   const shouldShowLoading = (!isLoading && !hasError && !verseText && !verseReference);
   assert.strictEqual(shouldShowLoading, true);
+});
+
+test('DOM structure - Header should display when configured', () => {
+  const config = { header: "Verse of the day" };
+  const shouldShowHeader = config.header && config.header.length > 0;
+  
+  assert.strictEqual(shouldShowHeader, true);
+  assert.strictEqual(config.header, "Verse of the day");
+});
+
+test('DOM structure - Header should not display when empty', () => {
+  const config = { header: "" };
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  
+  assert.strictEqual(shouldShowHeader, false);
+});
+
+test('DOM structure - Header should not display when null', () => {
+  const config = { header: null };
+  const shouldShowHeader = Boolean(config.header && config.header.length > 0);
+  
+  assert.strictEqual(shouldShowHeader, false);
 });
 
 /**

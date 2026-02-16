@@ -522,6 +522,7 @@ module.exports = {
   parseCSVFile,
   convertVerse,
   getVolumeFromBook,
+  parseVerseReference,
   VOLUME_MAPPINGS
 };
 
