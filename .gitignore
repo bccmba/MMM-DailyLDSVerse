@@ -4,9 +4,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Package lock - ignore local development
-# (tracking removed to avoid conflicts with existing installations)
-package-lock.json
+# Package lock - include for CI
+# package-lock.json
 
 # OS files
 .DS_Store
