@@ -234,5 +234,74 @@ test('Integration: Configuration should merge with defaults correctly', () => {
   assert.strictEqual(merged3.header, "");
 });
 
+/**
+ * Test configured volumes integration
+ */
+test('Integration: Should cycle through configured volumes correctly', () => {
+  // Test single volume
+  const singleVolume = ['bookOfMormon'];
+  for (let day = 1; day <= 5; day++) {
+    const volumeIndex = (day - 1) % singleVolume.length;
+    const volume = singleVolume[volumeIndex];
+    assert.strictEqual(volume, 'bookOfMormon', `Day ${day} should be bookOfMormon`);
+  }
+  
+  // Test two volumes
+  const twoVolumes = ['bible', 'doctrineAndCovenants'];
+  assert.strictEqual(twoVolumes[(1 - 1) % twoVolumes.length], 'bible');
+  assert.strictEqual(twoVolumes[(2 - 1) % twoVolumes.length], 'doctrineAndCovenants');
+  assert.strictEqual(twoVolumes[(3 - 1) % twoVolumes.length], 'bible');
+  assert.strictEqual(twoVolumes[(4 - 1) % twoVolumes.length], 'doctrineAndCovenants');
+  
+  // Test three volumes
+  const threeVolumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants'];
+  assert.strictEqual(threeVolumes[(1 - 1) % threeVolumes.length], 'bible');
+  assert.strictEqual(threeVolumes[(2 - 1) % threeVolumes.length], 'bookOfMormon');
+  assert.strictEqual(threeVolumes[(3 - 1) % threeVolumes.length], 'doctrineAndCovenants');
+  assert.strictEqual(threeVolumes[(4 - 1) % threeVolumes.length], 'bible');
+});
+
+test('Integration: Socket notification should include volumes configuration', () => {
+  // Simulate frontend sending volumes config
+  const defaultVolumes = ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"];
+  const customVolumes = ["bookOfMormon"];
+  
+  // Simulate payload sent via socket notification
+  const payload1 = { volumes: defaultVolumes };
+  const payload2 = { volumes: customVolumes };
+  
+  assert.ok(Array.isArray(payload1.volumes));
+  assert.strictEqual(payload1.volumes.length, 4);
+  assert.ok(Array.isArray(payload2.volumes));
+  assert.strictEqual(payload2.volumes.length, 1);
+});
+
+test('Integration: Should handle volumes config in verse selection', () => {
+  // Simulate node_helper receiving volumes config
+  const verseLists = {
+    bible: [{ reference: 'John 3:16', text: 'For God so loved...' }],
+    bookOfMormon: [{ reference: '1 Nephi 3:7', text: 'And it came to pass...' }],
+    doctrineAndCovenants: [{ reference: 'D&C 1:1', text: 'Hearken...' }],
+    pearlOfGreatPrice: [{ reference: 'Moses 1:1', text: 'The words of God...' }]
+  };
+  
+  // Test with Book of Mormon only
+  const configuredVolumes = ['bookOfMormon'];
+  for (let day = 1; day <= 5; day++) {
+    const volumeIndex = (day - 1) % configuredVolumes.length;
+    const volume = configuredVolumes[volumeIndex];
+    const verse = verseLists[volume][0];
+    assert.ok(verse, `Day ${day} should have verse from ${volume}`);
+    assert.strictEqual(volume, 'bookOfMormon');
+  }
+  
+  // Test with Bible and D&C
+  const twoVolumes = ['bible', 'doctrineAndCovenants'];
+  const verse1 = verseLists[twoVolumes[(1 - 1) % twoVolumes.length]][0];
+  const verse2 = verseLists[twoVolumes[(2 - 1) % twoVolumes.length]][0];
+  assert.strictEqual(verse1.reference, 'John 3:16');
+  assert.strictEqual(verse2.reference, 'D&C 1:1');
+});
+
 console.log('All integration tests defined');
 

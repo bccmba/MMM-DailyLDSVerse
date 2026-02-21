@@ -28,6 +28,7 @@ A MagicMirror² module that displays a daily LDS scripture verse (Bible, Book of
 ## Features
 
 - **Daily Scripture Rotation**: Cycles through four LDS volumes (Bible, Book of Mormon, Doctrine and Covenants, Pearl of Great Price)
+- **Configurable Volumes**: Choose which standard works to include in the rotation
 - **Randomized Verse Selection**: Different verse each day, randomly selected from the volume
 - **Offline Operation**: Pre-loaded verse data - no API calls needed
 - **Automatic Updates**: Updates at midnight (default) or custom intervals
@@ -72,6 +73,7 @@ A MagicMirror² module that displays a daily LDS scripture verse (Bible, Book of
 |--------|-------------|---------|---------|
 | `header` | Header text displayed above the verse. Set to `""` or `null` to hide | `"Verse of the day"` | `"Daily Scripture"` |
 | `updateInterval` | Update interval in milliseconds. `0`, `null`, or omit for midnight updates | `null` (midnight) | `86400000` (24 hours) |
+| `volumes` | Array of standard works to select verses from. Valid values: `"bible"`, `"bookOfMormon"`, `"doctrineAndCovenants"`, `"pearlOfGreatPrice"` | All 4 volumes | `["bookOfMormon"]` |
 
 ### Configuration Examples
 
@@ -112,6 +114,28 @@ A MagicMirror² module that displays a daily LDS scripture verse (Bible, Book of
   position: "top_center",
   config: {
     updateInterval: 43200000
+  }
+}
+```
+
+**Select Only Book of Mormon:**
+```javascript
+{
+  module: "MMM-DailyLDSVerse",
+  position: "top_center",
+  config: {
+    volumes: ["bookOfMormon"]
+  }
+}
+```
+
+**Select Bible and Doctrine and Covenants Only:**
+```javascript
+{
+  module: "MMM-DailyLDSVerse",
+  position: "top_center",
+  config: {
+    volumes: ["bible", "doctrineAndCovenants"]
   }
 }
 ```
@@ -165,7 +189,7 @@ The script generates these files:
 ## Development
 
 ```bash
-npm test   # Run all tests (224 tests)
+npm test   # Run all tests (247 tests)
 ```
 
 ## Project Structure
@@ -178,7 +202,7 @@ MMM-DailyLDSVerse/
 ├── convert-lds-data.js      # Data converter script
 ├── package.json             # Module metadata
 ├── README.md                # This file
-├── tests/                   # Test files (224 tests)
+├── tests/                   # Test files (247 tests)
 └── verses/                  # Pre-loaded verse JSON files
 ```
 

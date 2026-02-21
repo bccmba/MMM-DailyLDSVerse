@@ -10,6 +10,7 @@ Module.register("MMM-DailyLDSVerse", {
   defaults: {
     updateInterval: 86400000, // 24 hours in milliseconds
     header: "Verse of the day", // Header text to display above the verse
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"] // Default: all 4 standard works
   },
 
   // Load CSS stylesheet
@@ -35,8 +36,10 @@ Module.register("MMM-DailyLDSVerse", {
     this.isLoading = true;
     this.hasError = false;
     
-    // Request initial verse
-    this.sendSocketNotification("GET_VERSE");
+    // Request initial verse with configuration
+    this.sendSocketNotification("GET_VERSE", {
+      volumes: this.config.volumes
+    });
     
     // Schedule next update for midnight
     this.scheduleNextUpdate();
@@ -84,7 +87,9 @@ Module.register("MMM-DailyLDSVerse", {
 
     this.updateTimer = setTimeout(() => {
       Log.info("Scheduled update triggered");
-      this.sendSocketNotification("GET_VERSE");
+      this.sendSocketNotification("GET_VERSE", {
+        volumes: this.config.volumes
+      });
       this.scheduleNextUpdate(); // Schedule next update
     }, msUntilUpdate);
   },

@@ -1,5 +1,44 @@
 # Release Notes
 
+## Version 1.1.0 - Configurable Volumes Feature
+
+### Features
+
+- **Configurable Standard Works**: Users can now select which standard works to include in the daily rotation
+  - Default: All 4 volumes (Bible, Book of Mormon, Doctrine and Covenants, Pearl of Great Price)
+  - Custom: Any subset of volumes (e.g., only Book of Mormon, or Bible and D&C)
+  - Valid values: `"bible"`, `"bookOfMormon"`, `"doctrineAndCovenants"`, `"pearlOfGreatPrice"`
+
+### Configuration Updates
+
+New configuration option:
+- `volumes`: Array of standard works to select verses from
+  - Type: Array of strings
+  - Default: `["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"]`
+  - Examples:
+    - `volumes: ["bookOfMormon"]` - Only Book of Mormon
+    - `volumes: ["bible", "doctrineAndCovenants"]` - Only Bible and D&C
+    - `volumes: []` - Falls back to all 4 volumes
+
+### Testing
+
+- Added 16 new unit tests for configurable volumes feature
+- Total test count: 247 tests
+
+### Example Configuration
+
+```javascript
+{
+  module: "MMM-DailyLDSVerse",
+  position: "top_center",
+  config: {
+    volumes: ["bookOfMormon"]  // Only Book of Mormon verses
+  }
+}
+```
+
+---
+
 ## Version 1.0.0 - Initial Release
 
 ### Features

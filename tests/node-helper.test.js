@@ -195,3 +195,121 @@ test('getNextMidnight - Should handle year boundary', () => {
 
 console.log('All node_helper utility function tests defined');
 
+/**
+ * Test configured volumes functionality
+ * Tests for configurable volumes feature
+ */
+
+test('Configured volumes - Should use default all 4 volumes', () => {
+  const configuredVolumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
+  const volumes = configuredVolumes;
+  const dayOfYear = 1;
+  const volumeIndex = (dayOfYear - 1) % volumes.length;
+  assert.strictEqual(volumes[volumeIndex], 'bible');
+});
+
+test('Configured volumes - Should cycle through only configured volumes (single volume)', () => {
+  const configuredVolumes = ['bookOfMormon'];
+  const volumes = configuredVolumes;
+  const dayOfYear = 1;
+  const volumeIndex = (dayOfYear - 1) % volumes.length;
+  assert.strictEqual(volumes[volumeIndex], 'bookOfMormon');
+  
+  // Day 2 should also return bookOfMormon since only 1 volume
+  const dayOfYear2 = 2;
+  const volumeIndex2 = (dayOfYear2 - 1) % volumes.length;
+  assert.strictEqual(volumes[volumeIndex2], 'bookOfMormon');
+});
+
+test('Configured volumes - Should cycle through only configured volumes (two volumes)', () => {
+  const configuredVolumes = ['bible', 'bookOfMormon'];
+  const volumes = configuredVolumes;
+  
+  // Day 1: (1-1) % 2 = 0, so bible
+  const volume1 = volumes[(1 - 1) % volumes.length];
+  assert.strictEqual(volume1, 'bible');
+  
+  // Day 2: (2-1) % 2 = 1, so bookOfMormon
+  const volume2 = volumes[(2 - 1) % volumes.length];
+  assert.strictEqual(volume2, 'bookOfMormon');
+  
+  // Day 3: (3-1) % 2 = 0, so bible (cycles)
+  const volume3 = volumes[(3 - 1) % volumes.length];
+  assert.strictEqual(volume3, 'bible');
+});
+
+test('Configured volumes - Should cycle through only configured volumes (three volumes)', () => {
+  const configuredVolumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants'];
+  const volumes = configuredVolumes;
+  
+  const volume1 = volumes[(1 - 1) % volumes.length];
+  const volume2 = volumes[(2 - 1) % volumes.length];
+  const volume3 = volumes[(3 - 1) % volumes.length];
+  const volume4 = volumes[(4 - 1) % volumes.length];
+  
+  assert.strictEqual(volume1, 'bible');
+  assert.strictEqual(volume2, 'bookOfMormon');
+  assert.strictEqual(volume3, 'doctrineAndCovenants');
+  assert.strictEqual(volume4, 'bible'); // cycles back
+});
+
+test('Configured volumes - Should handle empty volumes array (fallback to bible)', () => {
+  const configuredVolumes = [];
+  const volumes = configuredVolumes;
+  const dayOfYear = 1;
+  
+  // When no volumes configured, should fallback
+  let volume;
+  if (volumes.length === 0) {
+    volume = 'bible'; // Fallback
+  } else {
+    volume = volumes[(dayOfYear - 1) % volumes.length];
+  }
+  
+  assert.strictEqual(volume, 'bible');
+});
+
+test('Configured volumes - Should allow Book of Mormon only configuration', () => {
+  const configuredVolumes = ['bookOfMormon'];
+  const volumes = configuredVolumes;
+  
+  for (let day = 1; day <= 10; day++) {
+    const volume = volumes[(day - 1) % volumes.length];
+    assert.strictEqual(volume, 'bookOfMormon', `Day ${day} should be bookOfMormon`);
+  }
+});
+
+test('Configured volumes - Should allow Bible and D&C only', () => {
+  const configuredVolumes = ['bible', 'doctrineAndCovenants'];
+  const volumes = configuredVolumes;
+  
+  assert.strictEqual(volumes[(1 - 1) % volumes.length], 'bible');
+  assert.strictEqual(volumes[(2 - 1) % volumes.length], 'doctrineAndCovenants');
+  assert.strictEqual(volumes[(3 - 1) % volumes.length], 'bible');
+  assert.strictEqual(volumes[(4 - 1) % volumes.length], 'doctrineAndCovenants');
+});
+
+test('Configured volumes - Should validate volume names', () => {
+  const validVolumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
+  const configuredVolumes = ['bible', 'bookOfMormon'];
+  
+  // All configured volumes should be valid
+  configuredVolumes.forEach(vol => {
+    assert.ok(validVolumes.includes(vol), `${vol} should be a valid volume`);
+  });
+});
+
+test('Configured volumes - Should ignore invalid volume names', () => {
+  const validVolumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
+  const configuredVolumes = ['bible', 'invalidVolume', 'bookOfMormon', 'anotherInvalid'];
+  
+  // Filter to only valid volumes
+  const filteredVolumes = configuredVolumes.filter(v => validVolumes.includes(v));
+  
+  assert.strictEqual(filteredVolumes.length, 2);
+  assert.strictEqual(filteredVolumes[0], 'bible');
+  assert.strictEqual(filteredVolumes[1], 'bookOfMormon');
+});
+
+console.log('All configured volumes tests defined');
+

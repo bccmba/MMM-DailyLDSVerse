@@ -1,6 +1,6 @@
 {
   "name": "mmm-dailyldsverse",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Magic Mirror module for daily LDS scripture verses from Bible, Book of Mormon, Doctrine and Covenants, and Pearl of Great Price",
   "main": "MMM-DailyLDSVerse.js",
   "scripts": {

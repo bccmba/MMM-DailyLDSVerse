@@ -18,6 +18,7 @@ module.exports = NodeHelper.create({
     doctrineAndCovenants: [],
     pearlOfGreatPrice: []
   },
+  configuredVolumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"],
   // Deprecated: API configuration (kept for backward compatibility)
   // Module now uses local files - API code is not used in normal operation
   apiBaseUrl: null, // To be determined from API research
@@ -140,16 +141,19 @@ module.exports = NodeHelper.create({
   },
 
   /**
-   * Get volume for a given day (cycles through 4 volumes)
-   * Cycles through: Bible → Book of Mormon → Doctrine and Covenants → Pearl of Great Price
-   * Pattern: Day 1 = Bible, Day 2 = Book of Mormon, Day 3 = D&C, Day 4 = Pearl, Day 5 = Bible (repeat)
+   * Get volume for a given day (cycles through configured volumes)
+   * Cycles through the volumes specified in configuredVolumes
+   * Pattern: If configured with Bible and BOM, Day 1 = Bible, Day 2 = BOM, Day 3 = Bible
    * @function getVolumeForDay
    * @param {number} dayOfYear - Day of year (1-366)
    * @returns {string} Volume name: 'bible', 'bookOfMormon', 'doctrineAndCovenants', or 'pearlOfGreatPrice'
    */
   getVolumeForDay: function(dayOfYear) {
-    const volumes = ['bible', 'bookOfMormon', 'doctrineAndCovenants', 'pearlOfGreatPrice'];
-    const volumeIndex = (dayOfYear - 1) % 4;
+    const volumes = this.configuredVolumes;
+    if (volumes.length === 0) {
+      return 'bible'; // Fallback
+    }
+    const volumeIndex = (dayOfYear - 1) % volumes.length;
     return volumes[volumeIndex];
   },
 
@@ -483,6 +487,10 @@ module.exports = NodeHelper.create({
    */
   socketNotificationReceived: function(notification, payload) {
     if (notification === "GET_VERSE") {
+      // Update configured volumes from payload if provided
+      if (payload && payload.volumes && Array.isArray(payload.volumes)) {
+        this.configuredVolumes = payload.volumes;
+      }
       this.handleGetVerse();
     }
   },

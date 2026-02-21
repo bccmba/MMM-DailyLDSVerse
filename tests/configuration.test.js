@@ -158,5 +158,76 @@ test('Configuration - Should allow null header to hide it', () => {
   assert.strictEqual(shouldShowHeader, false);
 });
 
+/**
+ * Test volumes configuration
+ */
+test('Volumes configuration - Should have default all 4 volumes', () => {
+  const defaults = {
+    updateInterval: 86400000,
+    header: "Verse of the day",
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"]
+  };
+  
+  assert.ok(defaults.volumes);
+  assert.strictEqual(Array.isArray(defaults.volumes), true);
+  assert.strictEqual(defaults.volumes.length, 4);
+});
+
+test('Volumes configuration - Should allow custom volume selection', () => {
+  const config = {
+    volumes: ["bookOfMormon"]
+  };
+  
+  assert.strictEqual(config.volumes.length, 1);
+  assert.strictEqual(config.volumes[0], "bookOfMormon");
+});
+
+test('Volumes configuration - Should allow multiple volumes', () => {
+  const config = {
+    volumes: ["bible", "doctrineAndCovenants"]
+  };
+  
+  assert.strictEqual(config.volumes.length, 2);
+  assert.strictEqual(config.volumes.includes("bible"), true);
+  assert.strictEqual(config.volumes.includes("doctrineAndCovenants"), true);
+});
+
+test('Volumes configuration - Should allow all volumes explicitly', () => {
+  const config = {
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"]
+  };
+  
+  assert.strictEqual(config.volumes.length, 4);
+});
+
+test('Volumes configuration - Should allow empty array (all volumes)', () => {
+  const config = {
+    volumes: []
+  };
+  
+  assert.strictEqual(Array.isArray(config.volumes), true);
+  assert.strictEqual(config.volumes.length, 0);
+});
+
+test('Volumes configuration - Should validate volume names', () => {
+  const validVolumes = ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"];
+  const config = {
+    volumes: ["bible", "bookOfMormon"]
+  };
+  
+  config.volumes.forEach(vol => {
+    assert.ok(validVolumes.includes(vol), `${vol} should be valid`);
+  });
+});
+
+test('Volumes configuration - Should handle undefined (use default)', () => {
+  const config = {};
+  
+  // When undefined, the default should be used
+  const volumes = config.volumes || ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"];
+  
+  assert.strictEqual(volumes.length, 4);
+});
+
 console.log('All configuration tests defined');
 

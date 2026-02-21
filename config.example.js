@@ -19,10 +19,18 @@
     // If not specified, defaults to once per day at midnight
     // Examples:
     //   86400000 = 24 hours (1 day) - default
-    //   43200000 = 12 hours
-    //   3600000 = 1 hour
+    //   43200000 =  //   3600000 = 12 hours
+   1 hour
     //   0 or null = use midnight update (default behavior)
-    updateInterval: 86400000  // Optional, defaults to daily at midnight
+    updateInterval: 86400000,  // Optional, defaults to daily at midnight
+    
+    // Optional: Select which standard works to include in the rotation
+    // Valid values: "bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"
+    // Default: all 4 volumes are included
+    // Examples:
+    //   ["bookOfMormon"] = only Book of Mormon
+    //   ["bible", "doctrineAndCovenants"] = only Bible and D&C
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"]  // Optional, defaults to all
   }
 }
 
