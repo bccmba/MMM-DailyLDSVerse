@@ -4,7 +4,7 @@
   "description": "Magic Mirror module for daily LDS scripture verses from Bible, Book of Mormon, Doctrine and Covenants, and Pearl of Great Price",
   "main": "MMM-DailyLDSVerse.js",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node --test tests/configuration.test.js tests/convert-lds-data.test.js tests/dom-rendering.test.js tests/e2e-flow.test.js tests/error-handling.test.js tests/file-system.test.js tests/generate-verse-lists.test.js tests/integration.test.js tests/main-module.test.js tests/module-lifecycle.test.js tests/node-helper.test.js tests/node-helper-complete.test.js tests/performance.test.js tests/utils.test.js tests/validation.test.js",
     "test:unit": "node --test tests/configuration.test.js tests/main-module.test.js tests/node-helper.test.js tests/node-helper-complete.test.js tests/validation.test.js",
     "test:integration": "node --test tests/integration.test.js tests/file-system.test.js tests/module-lifecycle.test.js",
     "test:e2e": "node --test tests/e2e-flow.test.js",
