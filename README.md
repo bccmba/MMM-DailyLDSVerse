@@ -74,6 +74,7 @@ A MagicMirror² module that displays a daily LDS scripture verse (Bible, Book of
 | `header` | Header text displayed above the verse. Set to `""` or `null` to hide | `"Verse of the day"` | `"Daily Scripture"` |
 | `updateInterval` | Update interval in milliseconds. `0`, `null`, or omit for midnight updates | `null` (midnight) | `86400000` (24 hours) |
 | `volumes` | Array of standard works to select verses from. Valid values: `"bible"`, `"bookOfMormon"`, `"doctrineAndCovenants"`, `"pearlOfGreatPrice"` | All 4 volumes | `["bookOfMormon"]` |
+| `fontScale` | Enable dynamic font scaling to fit longer verses in the display | `true` | `false` |
 
 ### Configuration Examples
 

@@ -10,7 +10,8 @@ Module.register("MMM-DailyLDSVerse", {
   defaults: {
     updateInterval: 86400000, // 24 hours in milliseconds
     header: "Verse of the day", // Header text to display above the verse
-    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"] // Default: all 4 standard works
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"], // Default: all 4 standard works
+    fontScale: true // Enable dynamic font scaling based on verse length
   },
 
   // Load CSS stylesheet
@@ -147,6 +148,34 @@ Module.register("MMM-DailyLDSVerse", {
   },
 
   /**
+   * Calculate font size based on verse text length
+   * Scales down font for longer verses to fit the display
+   * @function getFontSize
+   * @param {string} text - The verse text
+   * @returns {string} Font size in em
+   */
+  getFontSize: function(text) {
+    if (!this.config.fontScale || !text) {
+      return "1em";
+    }
+    
+    const length = text.length;
+    
+    // Font sizes: very short (<50 chars) = 1.1em, short (<100) = 1em, medium (<200) = 0.9em, long (<300) = 0.8em, very long = 0.7em
+    if (length < 50) {
+      return "1.1em";
+    } else if (length < 100) {
+      return "1em";
+    } else if (length < 200) {
+      return "0.9em";
+    } else if (length < 300) {
+      return "0.8em";
+    } else {
+      return "0.7em";
+    }
+  },
+
+  /**
    * Create the DOM element
    * Builds the module's DOM structure based on current state
    * Handles three states: loading, error, and success
@@ -178,6 +207,8 @@ Module.register("MMM-DailyLDSVerse", {
     } else if (this.verseText && this.verseReference) {
       const verseDiv = document.createElement("div");
       verseDiv.className = "verse-text";
+      // Apply dynamic font scaling based on verse length
+      verseDiv.style.fontSize = this.getFontSize(this.verseText);
       // Sanitize and set text content to prevent XSS
       verseDiv.textContent = this.verseText;
 

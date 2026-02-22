@@ -319,5 +319,64 @@ test('Update scheduling - Should schedule next update after current', () => {
   }
 });
 
+/**
+ * Test getFontSize function logic
+ */
+function getFontSize(text, fontScale = true) {
+  if (!fontScale || !text) {
+    return "1em";
+  }
+  
+  const length = text.length;
+  
+  if (length < 50) {
+    return "1.1em";
+  } else if (length < 100) {
+    return "1em";
+  } else if (length < 200) {
+    return "0.9em";
+  } else if (length < 300) {
+    return "0.8em";
+  } else {
+    return "0.7em";
+  }
+}
+
+test('getFontSize - Should return larger font for very short verses', () => {
+  const shortText = "For God so loved the world.";
+  assert.strictEqual(getFontSize(shortText), "1.1em");
+});
+
+test('getFontSize - Should return default font for short verses', () => {
+  const text = "And it came to pass that I, Nephi, said unto my father.";
+  assert.strictEqual(getFontSize(text), "1em");
+});
+
+test('getFontSize - Should return smaller font for medium verses', () => {
+  const text = "A".repeat(150);
+  assert.strictEqual(getFontSize(text), "0.9em");
+});
+
+test('getFontSize - Should return smaller font for long verses', () => {
+  const text = "A".repeat(200);
+  assert.strictEqual(getFontSize(text), "0.8em");
+});
+
+test('getFontSize - Should return smallest font for very long verses', () => {
+  const text = "A".repeat(300);
+  assert.strictEqual(getFontSize(text), "0.7em");
+});
+
+test('getFontSize - Should return default when fontScale is disabled', () => {
+  const text = "A".repeat(500);
+  assert.strictEqual(getFontSize(text, false), "1em");
+});
+
+test('getFontSize - Should return default when text is empty', () => {
+  assert.strictEqual(getFontSize(""), "1em");
+  assert.strictEqual(getFontSize(null), "1em");
+  assert.strictEqual(getFontSize(undefined), "1em");
+});
+
 console.log('All main module tests defined');
 

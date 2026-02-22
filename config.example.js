@@ -19,8 +19,8 @@
     // If not specified, defaults to once per day at midnight
     // Examples:
     //   86400000 = 24 hours (1 day) - default
-    //   43200000 =  //   3600000 = 12 hours
-   1 hour
+    //   43200000 = 12 hours
+    //   3600000 = 1 hour
     //   0 or null = use midnight update (default behavior)
     updateInterval: 86400000,  // Optional, defaults to daily at midnight
     
@@ -30,7 +30,12 @@
     // Examples:
     //   ["bookOfMormon"] = only Book of Mormon
     //   ["bible", "doctrineAndCovenants"] = only Bible and D&C
-    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"]  // Optional, defaults to all
+    volumes: ["bible", "bookOfMormon", "doctrineAndCovenants", "pearlOfGreatPrice"],  // Optional, defaults to all
+    
+    // Optional: Enable dynamic font scaling for longer verses
+    // When enabled, font size automatically adjusts based on verse length
+    // Longer verses get smaller fonts to fit the display
+    fontScale: true  // Optional, defaults to true
   }
 }
 
